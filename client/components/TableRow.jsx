@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Tooltip, Modal, Button } from "flowbite-react";
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { HiOutlineExclamationCircle } from "react-icons/hi";
+import dayjs from 'dayjs';
 
 
 export default function TableRow({ apptid, pxid, clinicid, doctorid, timequeued, queuedate, starttime, endtime, status}) {
@@ -65,45 +66,55 @@ export default function TableRow({ apptid, pxid, clinicid, doctorid, timequeued,
                     <div className="grid grid-cols-6 gap-6">
                         <div className="col-span-6">
                             <label for="apptid" className="block mb-2 text-sm font-medium text-gray-900">Appointment ID</label>
-                            <input disaled type="text" name="apptid" id="apptid" className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" value={apptid} required=""/>
+                            <input disabled type="text" name="apptid" id="apptid" className="shadow-sm bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" value={apptid} required=""/>
                         </div>
                         <div className="col-span-6">
-                            <label for="last-name" className="block mb-2 text-sm font-medium text-gray-900">Status</label>
-                            <input type="text" name="last-name" id="last-name" className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="tbc to dropdown" required=""/>
+                            <label for="status" className="block mb-2 text-sm font-medium text-gray-900">Status</label>
+                            <select id="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required="">
+                              <option value="CO" selected={status === 'Complete'}>Complete</option>
+                              <option value="QU" selected={status === 'Queued'}>Queued</option>
+                              <option value="SE" selected={status === 'Serving'}>Serving</option>
+                              <option value="CA" selected={status === 'Cancel'}>Cancel</option>
+                              <option value="SK" selected={status === 'Skip'}>Skip</option>
+                            </select>
                         </div>
                         <div className="col-span-6">
-                            <label for="last-name" className="block mb-2 text-sm font-medium text-gray-900">Patient ID</label>
-                            <input type="text" name="last-name" id="last-name" className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="tbc to dropdown" required=""/>
+                            <label for="pxid" className="block mb-2 text-sm font-medium text-gray-900">Patient ID</label>
+                            <input type="text" name="pxid" id="pxid" className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" value={pxid} required=""/>
                         </div>
                         <div className="col-span-6">
-                            <label for="email" className="block mb-2 text-sm font-medium text-gray-900">Clinic ID</label>
-                            <input type="text" placeholder="tbc to dropdown" name="email" id="email" className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" required=""/>
+                            <label for="clinicid" className="block mb-2 text-sm font-medium text-gray-900">Clinic ID</label>
+                            <input type="text" name="clinicid" id="clinicid" value={clinicid} className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" required=""/>
                         </div>
                         <div className="col-span-6">
-                            <label for="phone-number" className="block mb-2 text-sm font-medium text-gray-900">Doctor ID</label>
-                            <input type="text" placeholder="tbc to dropdown" name="phone-number" id="phone-number" className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" required=""/>
+                            <label for="doctorid" className="block mb-2 text-sm font-medium text-gray-900">Doctor ID</label>
+                            <input type="text" name="doctorid" id="doctorid" value={doctorid} className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" required=""/>
                         </div>
                         <div className="col-span-6">
                             <label for="department" className="block mb-2 text-sm font-medium text-gray-900">Time Queued</label>
-                            <DateTimePicker className='w-full'                               
+                            <DateTimePicker className='w-full'  
+                                defaultValue={timequeued && dayjs(timequeued)}                     
                                 onChange={(newValue) => setValue(newValue)}
                                 />
                         </div>
                         <div className="col-span-6">
                             <label for="company" className="block mb-2 text-sm font-medium text-gray-900">Queue Date</label>
-                            <DateTimePicker className='w-full'                                   
+                            <DateTimePicker className='w-full'
+                                defaultValue={queuedate && dayjs(queuedate)}                               
                                 onChange={(newValue) => setValue(newValue)}
                                 />
                         </div>
                         <div className="col-span-6">
                             <label for="current-password" className="block mb-2 text-sm font-medium text-gray-900">Start Time</label>
-                            <DateTimePicker className='w-full'                               
+                            <DateTimePicker className='w-full'        
+                              defaultValue={starttime && dayjs(starttime)}                    
                                 onChange={(newValue) => setValue(newValue)}
                                 />                        
                             </div>
                         <div className="col-span-6">
                             <label for="new-password" className="block mb-2 text-sm font-medium text-gray-900">End Time</label>
-                            <DateTimePicker className='w-full'                                 
+                            <DateTimePicker className='w-full'     
+                           defaultValue={endtime && dayjs(endtime)}                          
                                 onChange={(newValue) => setValue(newValue)}
                                 />
                         </div>
