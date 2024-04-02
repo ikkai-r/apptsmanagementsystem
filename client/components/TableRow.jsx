@@ -58,6 +58,12 @@ export default function TableRow({ apptid, pxid, clinicid, doctorid, timequeued,
             <a href="#" onClick={() => setSureModal(true)} className="font-medium text-red-600 hover:underline">Remove</a>
         </td>
     
+
+    {/**
+     *  TODO: connect update and delete to back-end
+     * 
+     */}
+
     <Modal show={openModal} onClose={() => setOpenModal(false)}>
         <Modal.Header className="bg-white"><span className='text-gray-900 font-bold'>Edit Appointment</span></Modal.Header>
         <Modal.Body className="bg-white">
