@@ -5,15 +5,21 @@ export default function Table() {
 
     const [appointments, setAppointments] = useState([]);
 
-    useEffect (() => {
-        fetch("http://localhost:5000/api/view").then(
-          res => res.json()
-        ).then(
-          data => {
+    const fetchData = () => {
+        fetch("http://localhost:5000/api/view")
+          .then(res => res.json())
+          .then(data => {
             setAppointments(data);
-          }
-        )
-      }, [])
+          });
+      };
+    
+      useEffect(() => {
+        fetchData();
+      }, []);
+    
+      const handleUpdate = () => {
+        fetchData();
+      };
 
   return (
     <table className="w-full text-sm text-left rtl:text-right text-gray-500  shadow-md">
@@ -64,6 +70,7 @@ export default function Table() {
                     queuedate={appointment.queuedate}
                     starttime={appointment.starttime}
                     endtime={appointment.endtime}
+                    onUpdate={handleUpdate}
                 />
             ))}
                             

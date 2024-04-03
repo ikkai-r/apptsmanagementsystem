@@ -34,20 +34,51 @@ const fetchData = async () => {
     }
 };
 
+app.use(express.json());
 app.use(cors());
 
 app.get("/api/view", async (req, res) => {
     try {
         const data = await fetchData();
         if (data) {
-            res.send(data); // Send the fetched data as JSON
+            res.send(data); 
         } else {
             res.json({message: 'No records found.'});
         }
     } catch (error) {
-        res.status(500).json({ message: "Error fetching data." }); // Send an error message if an error occurs
+        res.status(500).json({ message: "Error fetching data." }); 
     }
 })
+
+app.post("/api/update", async (req, res) => {
+    try {
+
+        const apptid = req.body.apptid;
+        const pxid = req.body.pxid;
+        const clinicid = req.body.clinicid;
+        const doctorid = req.body.doctorid;
+        const status = req.body.status;
+        const timequeued = new Date(req.body.timequeued)
+        const queuedate = new Date(req.body.timequeued)
+        const starttime = new Date(req.body.timequeued)
+        const endtime = new Date(req.body.timequeued)
+
+        const [result] = await pool.query(
+            "UPDATE appointments SET pxid = ?, clinicid = ?, doctorid = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ? WHERE apptid = ?",
+            [pxid, clinicid, doctorid, status, timequeued, queuedate, starttime, endtime, apptid]
+        );
+
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: "Data updated successfully." });
+        } else {
+            res.status(404).json({ message: "Record not found." });
+        }
+
+    } catch (error) {
+        console.error("Error updating data:", error);
+        res.status(500).json({ message: "Error updating data." });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`)
