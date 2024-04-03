@@ -1,15 +1,15 @@
 const express = require('express');
 const app = express();
 const cors = require("cors");
-const PORT = 5000;
+const PORT = 5002;
 const mysql = require('mysql2');
 
 // Create a MySQL connection pool
 const pool = mysql.createPool({
     host: 'ccscloud.dlsu.edu.ph',
-    port: '20153',
-    user: 'user1',
-    password: 'n0dE#001',
+    port: '20155',
+    user: 'user3',
+    password: 'n0dE#003',
     database: 'medical_appts'
 }).promise();
 
