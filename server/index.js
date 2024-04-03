@@ -12,8 +12,7 @@ const pool = mysql.createPool({
     password: 'n0dE#003',
     database: 'medical_appts'
 }).promise();
-
-
+ 
 const fetchData = async () => {
     try {
         console.log("database connected!")
@@ -96,7 +95,6 @@ app.post("/api/delete", async (req, res) => {
         res.status(500).json({ message: "Error deleting data." });
     }
 });
-
 
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`)

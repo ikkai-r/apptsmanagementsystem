@@ -1,11 +1,10 @@
-import React, { FormEvent, useState } from 'react';
+import React, { FormEvent, useState, useEffect } from 'react';
 import { Tooltip, Modal, Button } from "flowbite-react";
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 
 import dayjs from 'dayjs';
-
 
 export default function TableRow({ apptid, pxid, clinicid, doctorid, timequeued, queuedate, starttime, endtime, status, onUpdate}) {
     const [openModal, setOpenModal] = useState(false);
