@@ -2,12 +2,16 @@ import React, { FormEvent, useState } from 'react';
 import { Tooltip, Modal, Button } from "flowbite-react";
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { HiOutlineExclamationCircle } from "react-icons/hi";
+import { IoMdCheckmarkCircleOutline } from "react-icons/io";
+
 import dayjs from 'dayjs';
 
 
 export default function TableRow({ apptid, pxid, clinicid, doctorid, timequeued, queuedate, starttime, endtime, status, onUpdate}) {
     const [openModal, setOpenModal] = useState(false);
     const [sureModal, setSureModal] = useState(false);
+    const [successDelModal, setSuccessDelModal] = useState(false);
+    const [successUpdModal, setSuccessUpdModal] = useState(false);
     const [selectedDate, setSelectedDate] = useState(null);
     
     const handleDateChange = (newDate) => {
@@ -39,11 +43,55 @@ export default function TableRow({ apptid, pxid, clinicid, doctorid, timequeued,
             if(response.status == 200) {
               onUpdate();
               setOpenModal(false);
+              
+              setSuccessUpdModal(true);
+
+              setTimeout(() => {
+                setSuccessUpdModal(false);
+              }, 1000);
             }
           })
           .then(
             data => console.log(data)
             )
+          .catch(error => console.error('Error:', error));
+        
+    }
+
+    async function onDelete(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+
+       console.log('onDelete function called');
+
+       const formData = new FormData(event.target as HTMLFormElement);
+
+       const serializedData: { [key: string]: any } = {};
+     
+       formData.forEach((value, key) => {
+         serializedData[key] = value;
+       });
+     
+        fetch('http://localhost:5000/api/delete', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(serializedData)
+          })
+          .then(response => {
+            response.json()
+            if(response.status == 200) {
+              
+              onUpdate();
+              setSureModal(false);
+                            
+              setSuccessDelModal(true);
+
+              setTimeout(() => {
+                setSuccessDelModal(false);
+              }, 1000);
+            }
+          })
           .catch(error => console.error('Error:', error));
         
     }
@@ -97,11 +145,6 @@ export default function TableRow({ apptid, pxid, clinicid, doctorid, timequeued,
             <a href="#" onClick={() => setSureModal(true)} className="font-medium text-red-600 hover:underline">Remove</a>
         </td>
     
-
-    {/**
-     *  TODO: connect update and delete to back-end
-     * 
-     */}
 
     <Modal show={openModal} onClose={() => setOpenModal(false)}>
         <Modal.Header className="bg-white"><span className='text-gray-900 font-bold'>Edit Appointment</span></Modal.Header>
@@ -186,9 +229,12 @@ export default function TableRow({ apptid, pxid, clinicid, doctorid, timequeued,
               Are you sure you want to delete this product?
             </h3>
             <div className="flex justify-center gap-4">
-              <Button color="failure" onClick={() => setSureModal(false)}>
-                {"Yes, I'm sure"}
-              </Button>
+              <form id='deleteform' onSubmit={onDelete}>
+              <input style={{'display': 'none'}} type="text" name="apptid" id="apptid" className="shadow-sm bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" value={apptid} required/>
+                <Button color="failure" type='submit'>
+                  {"Yes, I'm sure"}
+                </Button>
+              </form>
               <Button color="gray" onClick={() => setSureModal(false)}>
                 No, cancel
               </Button>
@@ -196,6 +242,31 @@ export default function TableRow({ apptid, pxid, clinicid, doctorid, timequeued,
           </div>
         </Modal.Body>
       </Modal>
+
+      <Modal show={successDelModal} size="md" onClose={() => setSuccessDelModal(false)} popup>
+        <Modal.Header className="bg-white" />
+        <Modal.Body className="bg-white">
+          <div className="text-center">
+            <IoMdCheckmarkCircleOutline className="mx-auto mb-4 h-14 w-14 text-green-500" />
+            <h3 className="mb-5 text-lg font-normal text-gray-500">
+              Deleted successfully!
+            </h3>
+          </div>
+        </Modal.Body>
+      </Modal>
+
+      <Modal show={successUpdModal} size="md" onClose={() => setSuccessUpdModal(false)} popup>
+        <Modal.Header className="bg-white" />
+        <Modal.Body className="bg-white">
+          <div className="text-center">
+            <IoMdCheckmarkCircleOutline className="mx-auto mb-4 h-14 w-14 text-green-500" />
+            <h3 className="mb-5 text-lg font-normal text-gray-500">
+              Updated successfully!
+            </h3>
+          </div>
+        </Modal.Body>
+      </Modal>
+
 
     </tr>
   )

@@ -59,9 +59,9 @@ app.post("/api/update", async (req, res) => {
         const doctorid = req.body.doctorid;
         const status = req.body.status;
         const timequeued = new Date(req.body.timequeued)
-        const queuedate = new Date(req.body.timequeued)
-        const starttime = new Date(req.body.timequeued)
-        const endtime = new Date(req.body.timequeued)
+        const queuedate = new Date(req.body.queuedate)
+        const starttime = new Date(req.body.starttime)
+        const endtime = new Date(req.body.endtime)
 
         const [result] = await pool.query(
             "UPDATE appointments SET pxid = ?, clinicid = ?, doctorid = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ? WHERE apptid = ?",
@@ -79,6 +79,24 @@ app.post("/api/update", async (req, res) => {
         res.status(500).json({ message: "Error updating data." });
     }
 });
+
+app.post("/api/delete", async (req, res) => {
+    try {
+        const apptid = req.body.apptid;
+
+        await pool.query(
+            "DELETE FROM appointments WHERE apptid = ?",
+            [apptid]
+        );
+
+        res.status(200).json({ message: "Data deleted successfully." });
+
+    } catch (error) {
+        console.error("Error deleting data:", error);
+        res.status(500).json({ message: "Error deleting data." });
+    }
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`)
