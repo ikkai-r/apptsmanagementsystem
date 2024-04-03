@@ -6,7 +6,7 @@ export default function Table() {
     const [appointments, setAppointments] = useState([]);
 
     const fetchData = () => {
-        fetch("http://localhost:5000/api/view")
+        fetch("http://localhost:5001/api/view")
           .then(res => res.json())
           .then(data => {
             setAppointments(data);

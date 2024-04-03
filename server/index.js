@@ -1,15 +1,15 @@
 const express = require('express');
 const app = express();
 const cors = require("cors");
-const PORT = 5000;
+const PORT = 5001;
 const mysql = require('mysql2');
 
 // Create a MySQL connection pool
 const pool = mysql.createPool({
     host: 'ccscloud.dlsu.edu.ph',
-    port: '20153',
-    user: 'user1',
-    password: 'n0dE#001',
+    port: '20154',
+    user: 'user2',
+    password: 'n0dE#002',
     database: 'medical_appts'
 }).promise();
 
@@ -22,7 +22,7 @@ const fetchData = async () => {
             console.log("No records found.");
             return null;
         } else {
-            //console.log("Fetched data:", rows);
+            console.log(rows);
             return rows;
         }
     } catch (error) {

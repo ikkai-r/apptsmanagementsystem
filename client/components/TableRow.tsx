@@ -31,7 +31,7 @@ export default function TableRow({ apptid, pxid, clinicid, doctorid, timequeued,
          serializedData[key] = value;
        });
      
-        fetch('http://localhost:5000/api/update', {
+        fetch('http://localhost:5001/api/update', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ export default function TableRow({ apptid, pxid, clinicid, doctorid, timequeued,
          serializedData[key] = value;
        });
      
-        fetch('http://localhost:5000/api/delete', {
+        fetch('http://localhost:5001/api/delete', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
