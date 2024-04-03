@@ -12,17 +12,14 @@ const pool = mysql.createPool({
     password: 'n0dE#002',
     database: 'medical_appts'
 }).promise();
-
-
+ 
 const fetchData = async () => {
     try {
         console.log("database connected!")
         const [rows] = await pool.query("SELECT * FROM appointments LIMIT 15;");
         if (rows.length === 0) {
-            console.log("No records found.");
             return null;
         } else {
-            console.log(rows);
             return rows;
         }
     } catch (error) {
@@ -96,7 +93,6 @@ app.post("/api/delete", async (req, res) => {
         res.status(500).json({ message: "Error deleting data." });
     }
 });
-
 
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`)
