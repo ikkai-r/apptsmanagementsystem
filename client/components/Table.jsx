@@ -5,18 +5,28 @@ export default function Table() {
 
     const [appointments, setAppointments] = useState([]);
 
+    
     const fetchData = () => {
         fetch("http://localhost:5000/api/view")
           .then(res => res.json())
           .then(data => {
-            setAppointments(data);
+            if (JSON.stringify(data) !== JSON.stringify(appointments)) {
+                console.log('database changed');
+                setAppointments(data);
+            }
           });
       };
     
       useEffect(() => {
         fetchData();
-      }, []);
-    
+
+        const intervalId = setInterval(fetchData, 1000);
+
+        return () => {
+            clearInterval(intervalId);
+        };
+    }, []);
+
       const handleUpdate = () => {
         fetchData();
       };
