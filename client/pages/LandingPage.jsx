@@ -6,7 +6,7 @@ export default function LandingPage() {
     
         <section id="LandingPage" className="flex items-center flex-col pt-32 min-h-screen w-full">
                 <div className="text-left font-bold w-full mb-10">
-                    <p className="text-3xl">LIST OF APPOINTMENTS</p>
+                    <p className="text-3xl">LIST OF APPOINTMENTS IN LUZON, VISAYAS, AND MINDANAO</p>
                 </div>
                 <Table/>
         </section>

@@ -56,7 +56,7 @@ app.post("/api/update", async (req, res) => {
         const apptid = req.body.apptid;
         const pxid = req.body.pxid;
         const clinicid = req.body.clinicid;
-        const doctorid = req.body.doctorid;
+        const regionname = req.body.regionname;
         const status = req.body.status;
         const timequeued = new Date(req.body.timequeued)
         const queuedate = new Date(req.body.queuedate)
@@ -64,8 +64,8 @@ app.post("/api/update", async (req, res) => {
         const endtime = new Date(req.body.endtime)
 
         const [result] = await pool.query(
-            "UPDATE appointments SET pxid = ?, clinicid = ?, doctorid = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ? WHERE apptid = ?",
-            [pxid, clinicid, doctorid, status, timequeued, queuedate, starttime, endtime, apptid]
+            "UPDATE appointments SET pxid = ?, clinicid = ?, regionname = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ? WHERE apptid = ?",
+            [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, apptid]
         );
 
         if (result.affectedRows > 0) {
