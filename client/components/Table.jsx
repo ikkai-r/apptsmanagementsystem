@@ -5,6 +5,7 @@ export default function Table() {
 
     const [appointments, setAppointments] = useState([]);
 
+    
     const fetchData = () => {
         fetch("http://localhost:5002/api/view")
           .then(res => res.json())
@@ -44,7 +45,7 @@ export default function Table() {
                             Clinic ID
                         </th>
                         <th scope="col" className="px-3 py-3">
-                            Doctor ID
+                            Region Name
                         </th>
                         <th scope="col" className="px-3 py-3">
                             Status
@@ -73,7 +74,7 @@ export default function Table() {
                     apptid={appointment.apptid}
                     pxid={appointment.pxid}
                     clinicid={appointment.clinicid}
-                    doctorid={appointment.doctorid}
+                    regionname={appointment.regionname}
                     status={appointment.status}
                     timequeued={appointment.timequeued}
                     queuedate={appointment.queuedate}
