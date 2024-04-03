@@ -1,4 +1,4 @@
-import React, { useEffect, FormEvent, useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 import { Tooltip, Modal, Button } from "flowbite-react";
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { HiOutlineExclamationCircle } from "react-icons/hi";
@@ -7,7 +7,7 @@ import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import dayjs from 'dayjs';
 
 
-export default function TableRow({ apptid, pxid, clinicid, doctorid, timequeued, queuedate, starttime, endtime, status, onUpdate}) {
+export default function TableRow({ apptid, pxid, clinicid, regionname, timequeued, queuedate, starttime, endtime, status, onUpdate}) {
     const [openModal, setOpenModal] = useState(false);
     const [sureModal, setSureModal] = useState(false);
     const [successDelModal, setSuccessDelModal] = useState(false);
@@ -118,9 +118,7 @@ export default function TableRow({ apptid, pxid, clinicid, doctorid, timequeued,
         </td>
 
         <td className="px-3 py-4 text-gray-900">
-        <Tooltip content={doctorid}>
-         {doctorid.substring(0, 25)}...  
-        </Tooltip>   
+        {regionname}
         </td> 
 
         <td className="px-3 py-4 text-gray-900">
@@ -174,11 +172,29 @@ export default function TableRow({ apptid, pxid, clinicid, doctorid, timequeued,
                         </div>
                         <div className="col-span-6">
                             <label htmlFor="clinicid" className="block mb-2 text-sm font-medium text-gray-900">Clinic ID</label>
-                            <input type="text" name="clinicid" id="clinicid" value={clinicid} className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" required/>
+                            <input type="text" name="clinicid" id="clinicid" className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" value={pxid} required/>
                         </div>
                         <div className="col-span-6">
-                            <label htmlFor="doctorid" className="block mb-2 text-sm font-medium text-gray-900">Doctor ID</label>
-                            <input type="text" name="doctorid" id="doctorid" value={doctorid} className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" required/>
+                            <label htmlFor="regionname" className="block mb-2 text-sm font-medium text-gray-900">Region Name</label>
+                            <select id="regionname" name="regionname" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                              <option value="National Capital Region (NCR)" selected={status === 'National Capital Region (NCR)'}>National Capital Region (NCR)</option>
+                              <option value="Ilocos Region (I)" selected={regionname === 'Ilocos Region (I)'}>Ilocos Region (I)</option>
+                              <option value="Cagayan Valley (II)" selected={regionname === 'Cagayan Valley (II)'}>Cagayan Valley (II)</option>
+                              <option value="Central Luzon (III)" selected={regionname === 'Central Luzon (III)'}>Central Luzon (III)</option>
+                              <option value="CALABARZON (IV-A)" selected={regionname === 'CALABARZON (IV-A)'}>CALABARZON (IV-A)</option>
+                              <option value="MIMAROPA (IV-B)" selected={regionname === 'MIMAROPA (IV-B)'}>MIMAROPA (IV-B)</option>
+                              <option value="Bicol Region (V)" selected={regionname === 'Bicol Region (V)'}>Bicol Region (V)</option>
+                              <option value="Cordillera Administrative Region (CAR)" selected={regionname === 'Cordillera Administrative Region (CAR)'}>Cordillera Administrative Region (CAR)</option>
+                              <option value="Western Visayas (VI)" selected={regionname === 'Western Visayas (VI)'}>Western Visayas (VI)</option>
+                              <option value="Central Visayas (VII)" selected={regionname === 'Central Visayas (VII)'}>Central Visayas (VII)</option>
+                              <option value="Eastern Visayas (VIII)" selected={regionname === 'Eastern Visayas (VIII)'}>Eastern Visayas (VIII)</option>
+                              <option value="Zamboanga Peninsula (IX)" selected={regionname === 'Zamboanga Peninsula (IX)'}>Zamboanga Peninsula (IX)</option>
+                              <option value="Northern Mindanao (X)" selected={regionname === 'Northern Mindanao (X)'}>Northern Mindanao (X)</option>
+                              <option value="Davao Region (XI)" selected={regionname === 'Davao Region (XI)'}>Davao Region (XI)</option>
+                              <option value="SOCCSKSARGEN (Cotabato Region) (XII)" selected={regionname === 'SOCCSKSARGEN (Cotabato Region) (XII)'}>SOCCSKSARGEN (Cotabato Region) (XII)</option>
+                              <option value="Caraga (XIII)" selected={regionname === 'Caraga (XIII)'}>Caraga (XIII)</option>
+                              <option value="Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)" selected={regionname === 'Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)'}>Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)</option>
+                            </select>
                         </div>
                         <div className="col-span-6">
                             <label htmlFor="timequeued" className="block mb-2 text-sm font-medium text-gray-900">Time Queued</label>

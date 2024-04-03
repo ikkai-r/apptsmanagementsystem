@@ -12,14 +12,17 @@ const pool = mysql.createPool({
     password: 'n0dE#002',
     database: 'medical_appts'
 }).promise();
- 
+
+
 const fetchData = async () => {
     try {
         console.log("database connected!")
-        const [rows] = await pool.query("SELECT * FROM appointments LIMIT 15;");
+        const [rows] = await pool.query("SELECT * FROM appointments WHERE regionname='National Capital Region (NCR)' OR regionname='Ilocos Region (I)' OR regionname = 'Cagayan Valley (II)' OR regionname = 'Central Luzon (III)' OR regionname = 'CALABARZON (IV-A)' OR regionname = 'MIMAROPA (IV-B)' OR regionname = 'Bicol Region (V)' OR regionname = 'Cordillera Administrative Region (CAR)' LIMIT 15;");
         if (rows.length === 0) {
+            console.log("No records found.");
             return null;
         } else {
+            //console.log("Fetched data:", rows);
             return rows;
         }
     } catch (error) {
@@ -53,7 +56,7 @@ app.post("/api/update", async (req, res) => {
         const apptid = req.body.apptid;
         const pxid = req.body.pxid;
         const clinicid = req.body.clinicid;
-        const doctorid = req.body.doctorid;
+        const regionname = req.body.regionname;
         const status = req.body.status;
         const timequeued = new Date(req.body.timequeued)
         const queuedate = new Date(req.body.queuedate)
@@ -61,8 +64,8 @@ app.post("/api/update", async (req, res) => {
         const endtime = new Date(req.body.endtime)
 
         const [result] = await pool.query(
-            "UPDATE appointments SET pxid = ?, clinicid = ?, doctorid = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ? WHERE apptid = ?",
-            [pxid, clinicid, doctorid, status, timequeued, queuedate, starttime, endtime, apptid]
+            "UPDATE appointments SET pxid = ?, clinicid = ?, regionname = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ? WHERE apptid = ?",
+            [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, apptid]
         );
 
         if (result.affectedRows > 0) {
@@ -93,6 +96,7 @@ app.post("/api/delete", async (req, res) => {
         res.status(500).json({ message: "Error deleting data." });
     }
 });
+
 
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`)
