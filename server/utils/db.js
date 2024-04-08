@@ -77,13 +77,10 @@ const dbFuncs = {
 
       //execute query
       const [result] = await node.query(query.statement, query.value);
-
       [rows] = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
 
-      //insert log
-      //not updating yet V_V idk why
       await node.query(
-        "UPDATE logs SET record = ?, commit = ? WHERE id = (SELECT max_id FROM (SELECT MAX(id) AS max_id FROM logs_table) AS max_id_table)",
+        'UPDATE logs SET record = ? , commit = ? WHERE id = (SELECT max_id FROM (SELECT MAX(id) AS max_id FROM logs) AS max_id_table);',
         [JSON.stringify(rows[0]), 1]
     );
 
