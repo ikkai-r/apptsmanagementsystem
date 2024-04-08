@@ -44,4 +44,9 @@ const nodeFuncs = {
     }
 }
 
-module.exports = nodeFuncs;
+module.exports = {
+    nodeFuncs,
+    node1,
+    node2,
+    node3
+};

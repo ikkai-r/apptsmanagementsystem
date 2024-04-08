@@ -116,6 +116,7 @@ app.post("/api/update", async (req, res) => {
         const starttime = new Date(req.body.starttime)
         const endtime = new Date(req.body.endtime)
 
+        
         const [result] = await queryNode("1", 
         "UPDATE appointments SET pxid = ?, clinicid = ?, regionname = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ? WHERE apptid = ?",
         [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, apptid]
