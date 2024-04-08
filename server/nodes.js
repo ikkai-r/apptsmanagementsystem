@@ -36,17 +36,9 @@ const nodeFuncs = {
     },
     queryNode: async (node, query, values) => {
         if (values == null) {
-            switch (node) {
-                case '1': return await node1.query(query);
-                case '2': return await node2.query(query);
-                case '3': return await node3.query(query);
-            }
+            return await node.query(query);
         } else {
-            switch (node) {
-                case '1': return await node1.query(query, values);
-                case '2': return await node2.query(query, values);
-                case '3': return await node3.query(query, values);
-            }
+            return await node.query(query, values);
         }
         
     }

@@ -3,25 +3,73 @@ const express = require('express');
 const app = express();
 const cors = require("cors");
 const PORT = process.env.PORT;
-const { queryNode } = require('./nodes.js');
+const { connectNode, queryNode } = require('./nodes.js');
 
-const fetchData = async (node, query) => {
-    try {
-        console.log("database connected!")
-        const [rows] = await queryNode(node, query, null)
-        if (rows.length === 0) {
-            console.log("No records found.");
-            return null;
+
+const fetchData = async (query) => {
+        const centralNodeConnection = await connectNode("1");
+        if(centralNodeConnection) {
+            //master is working
+            try {
+                const [rows] = await queryNode(centralNodeConnection, query, null);
+                    if (rows.length === 0) {
+                        console.log("No records found.");
+                        return null;
+                    } else {
+                        return rows;
+                    }
+              } catch (err) {
+                console.error("Failed to query central node:", err);
+              } finally {
+                centralNodeConnection.release();
+              }
+
         } else {
-            return rows;
+            // if master fails, build database from node2 and node3
+            const Node2Connection = await connectNode("2");
+            const Node3Connection = await connectNode("3");
+
+            try {
+                let node2rows = null;
+                let node3rows = null;
+            
+                if (Node2Connection) {
+                    const result = await queryNode(Node2Connection, query, null);
+                    node2rows = result ? result[0] : null;
+                }
+            
+                if (Node3Connection) {
+                    const result = await queryNode(Node3Connection, query, null);
+                    node3rows = result ? result[0] : null;
+                }
+            
+                const combinedRows = [...(node2rows || []), ...(node3rows || [])].sort((a, b) => {
+                    return b.apptid - a.apptid;
+                });
+            
+                const rows = combinedRows.slice(0, 15);
+            
+                if (rows.length === 0) {
+                    console.log("No records found.");
+                    return null;
+                } else {
+                    return rows;
+                }
+
+            } catch (err) {
+                console.error("Failed to query to slave nodes:", err);
+              } finally {
+                if(Node2Connection) {
+                    Node2Connection.release();
+                }
+
+                if(Node3Connection) {
+                    Node3Connection.release();
+                }
+              }
         }
-    } catch (error) {
-        console.error("Error fetching data:", error);
-        console.error("Error executing query:", error.sqlMessage);
-        console.error("Failed SQL query:", error.sql);
-        console.error("Error stack:", error.stack);
-        throw error;
-    }
+        
+   
 };
 
 app.use(express.json());
@@ -29,7 +77,7 @@ app.use(cors());
 
 app.get("/api/view", async (req, res) => {
     try {
-        const data = await fetchData("1", "SELECT * FROM appointments LIMIT 15;");
+        const data = await fetchData("SELECT * FROM appointments ORDER BY apptid DESC LIMIT 15;");
         if (data) {
             res.send(data); 
         } else {

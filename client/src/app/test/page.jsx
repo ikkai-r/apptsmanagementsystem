@@ -10,6 +10,7 @@ export default function testPage() {
     </div>
     <DevOptions/>
     <DevOptions/>
+    <DevOptions/>
     </section>
   )
 }
