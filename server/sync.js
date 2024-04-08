@@ -1,36 +1,41 @@
-const { node1, node2, node3, connectNode, queryNode } = require('./nodes.js');
-const { getLogs } = require('./utils/queries.js');
+const { getLogsWithCondition, getLatestLog } = require('./utils/db.js');
 
 const syncFuncs = {
     syncCentralNode: async () => {
-        // get logs
-        
+        // get central node latest log
+        const centralNodeLatestLog = await getLatestLog('1');
 
+        // get node2 logs later than the date
+        const node2logs = await getLogsWithCondition('2', ['date > ? AND commit = ?', centralNodeLatestLog.date, 1]);
+
+        // get node3 logs later than the date
+        const node3logs = await getLogsWithCondition('3', ['date > ? AND commit = ?', centralNodeLatestLog.date, 1]);
+
+        // sort logs by date
+        const allLogs = [...node2logs, ...node3logs];
+        const sortedLogs = allLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // sync logs to central node by applying it
 
     },
     syncOtherNodes: async () => {
-        // get logs
+        // node 2
+        const node2LatestLog = await getLatestLog('2');
+
+        // get node1 logs later than the date
+        const node1_2logs = await getLogsWithCondition('1', ['date > ? AND commit = ?', node2LatestLog.date, 1]);
+
+        // sync log to node 2 by applying it
+
+        //node 3
+        const node3LatestLog = await getLatestLog('3');
+
+        // get node1 logs later than the date
+        const node1_3logs = await getLogsWithCondition('1', ['date > ? AND commit = ?', node3LatestLog.date, 1]);
+
+        // sync logs to node 3 by applying it
         
-
-
     },
 }
-
-
-// central node
-// get the logs from node 2 and node 3
-// check if there are transactions in node 2 and node 3 that have later times 
-// than the latest transaction in central node
-// if there is and commit = 1, then proceed to apply it to central node database
-
-// node 2
-// get logs from central node 
-// check if transactions in central node have later times than latest in node 2
-// if there is and commit = 1, proceed to apply it to node 2 database
-
-// node 3
-// get logs from central node 
-// check if transactions in central node have later times than latest in node 3
-// if there is and commit = 1, proceed to apply it to node 3 databaseS
 
 module.exports = syncFuncs;

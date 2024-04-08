@@ -4,6 +4,7 @@ const app = express();
 const cors = require("cors");
 const PORT = process.env.PORT;
 const {connectNode} = require('./nodes.js');
+const { syncCentralNode } = require('./sync.js');
 
 const fetchData = async (query) => {
         const centralNodeConnection = await connectNode("1");
@@ -68,6 +69,8 @@ const fetchData = async (query) => {
               }
         }
 };
+
+syncCentralNode();
 
 const searchQuery = async (node, query) => {
     const connectedNode = await connectNode(node);
