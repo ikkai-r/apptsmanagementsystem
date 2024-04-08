@@ -3,15 +3,14 @@ const express = require('express');
 const app = express();
 const cors = require("cors");
 const PORT = process.env.PORT;
-const { connectNode, queryNode } = require('./nodes.js');
-
+const {connectNode} = require('./nodes.js');
 
 const fetchData = async (query) => {
         const centralNodeConnection = await connectNode("1");
         if(centralNodeConnection) {
             //master is working
             try {
-                const [rows] = await queryNode(centralNodeConnection, query, null);
+                const [rows] = await centralNodeConnection.query(query);
                     if (rows.length === 0) {
                         console.log("No records found.");
                         return null;
@@ -34,12 +33,12 @@ const fetchData = async (query) => {
                 let node3rows = null;
             
                 if (Node2Connection) {
-                    const result = await queryNode(Node2Connection, query, null);
+                    const result = await Node2Connection.query(query);
                     node2rows = result ? result[0] : null;
                 }
             
                 if (Node3Connection) {
-                    const result = await queryNode(Node3Connection, query, null);
+                    const result = await Node3Connection.query(query);
                     node3rows = result ? result[0] : null;
                 }
             
@@ -68,9 +67,28 @@ const fetchData = async (query) => {
                 }
               }
         }
-        
-   
 };
+
+const searchQuery = async (node, query) => {
+    const connectedNode = await connectNode(node);
+    if(connectNode) {
+        try {
+            const [rows] = await connectedNode.query(query);
+                if (rows.length === 0) {
+                    console.log("No records found.");
+                    return null;
+                } else {
+                    return rows[0];
+                }
+          } catch (err) {
+            console.error("Failed to query node:", err);
+          } finally {
+            connectedNode.release();
+          }
+    } else {
+        console.log("Node is down");
+    }
+}
 
 app.use(express.json());
 app.use(cors());
@@ -92,9 +110,9 @@ app.post("/api/submitDevOptions", async (req, res) => {
     console.log(req.body.node)
     console.log(req.body.query)
    try {
-    const data = await fetchData(req.body.node, req.body.query);
+    const data = await searchQuery(req.body.node, req.body.query);
     if (data) {
-        res.send(data[0]); 
+        res.send(data); 
     } else {
         res.status(404).json({message: 'No records found.'});
     }
