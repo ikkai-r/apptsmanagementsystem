@@ -51,8 +51,8 @@ export default function DevOptions() {
       }
 
     return(
-        <>
-        <form id="devOptions" className="relative pt-10" onSubmit={onSubmit}>
+        <div className='bg-zinc-200 rounded-md w-full px-10 p-5 mt-10'>
+        <form id="devOptions" className="w-full px-10 pt-10" onSubmit={onSubmit}>
             <div className='text-gray-900 font-bold'>Dev Options</div>
                 <label htmlFor="node" className="block mb-2 text-sm font-medium text-gray-900">Nodes</label>
                 <select id="node" name="node" className=" text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
@@ -124,7 +124,7 @@ export default function DevOptions() {
                 <p className='text-2xl bg-zinc-300 mt-5 rounded-md p-5'>No records found</p>
             )
         }
-        </>
+        </div>
     )
 }
 
