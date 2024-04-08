@@ -74,6 +74,7 @@ const performTransaction = async (query, apptid) => {
     const centralNodeConnection = await connectNode(1);
     await setIsolationLevel(centralNodeConnection, "READ UNCOMMITTED");
 
+    //master working
     if (centralNodeConnection) {
         try {
             return await makeTransaction(centralNodeConnection, 1, query, apptid);
@@ -82,9 +83,10 @@ const performTransaction = async (query, apptid) => {
           }
 
     } else {
+        //if not perform transaction in nodes 2 or 3
         const Node2Connection = await connectNode(2);
         const Node3Connection = await connectNode(3);
-
+        
         if (regionname === "Luzon") {
             try {
                 await setIsolationLevel(Node2Connection, "READ UNCOMMITTED");
@@ -100,11 +102,12 @@ const performTransaction = async (query, apptid) => {
                 console.log(err);
             }
         }   
-    }
+    } 
 }
 
 const searchQuery = async (node, query) => {
     const connectedNode = await connectNode(node);
+
     if(connectNode) {
         try {
             const [rows] = await connectedNode.query(query);
@@ -141,16 +144,89 @@ app.get("/api/view", async (req, res) => {
 })
 
 app.post("/api/submitDevOptions", async (req, res) => {
-   try {
-    const data = await searchQuery(req.body.node, req.body.query);
-    if (data) {
-        res.send(data); 
-    } else {
-        res.status(404).json({message: 'No records found.'});
+   /*
+    INPUTS:
+    UPDATE appointments SET pxid = '6D887B136093311CC26296328A78A1D0', clinicid = '7522A10DDF6916ABCCF0163B58CA0543', regionname = 'National Capital Region (NCR)', status = 'Serving', timequeued = '2018-02-27 08:00:00', queuedate = '2018-02-27', starttime = '2018-02-27 17:00:00', endtime = NULL WHERE apptid = 'FE4563240085ACD2BFE3B16BDCE2C181';
+    DELETE FROM appointments WHERE apptid = 'FE4563240085ACD2BFE3B16BDCE2C181';
+    SELECT * FROM appointments WHERE apptid = 'FE4563240085ACD2BFE3B16BDCE2C181';
+   */
+   const nodeNum = parseInt(req.body.node);
+   const node = await connectNode(nodeNum);
+   
+   let id; 
+   
+   if (node) {
+    const queryType = req.body.query.substring(0,6);
+    
+    try {
+     if (queryType === "UPDATE") {
+         const updateStatement = req.body.query;
+         const pxid = updateStatement.match(/SET pxid = '([^']+)'/)[1];
+         const clinicid = updateStatement.match(/clinicid = '([^']+)'/)[1];
+         const regionname = updateStatement.match(/regionname = '([^']+)'/)[1];
+         const status = updateStatement.match(/status = '([^']+)'/)[1];
+         const timequeued = new Date(updateStatement.match(/timequeued = '([^']+)'/)[1]);
+         const queuedate = new Date(updateStatement.match(/queuedate = '([^']+)'/)[1]);
+         const starttime = new Date(updateStatement.match(/starttime = '([^']+)'/)[1]);
+         const endtime = new Date(updateStatement.match(/endtime\s*=\s*(NULL|'[^']+')/)[1]);
+         const apptid = updateStatement.match(/WHERE apptid = '([^']+)'/)[1];
+         id = apptid;
+
+         const query = {
+            statement: "UPDATE appointments SET pxid = ?, clinicid = ?, regionname = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ? WHERE apptid = ?",
+            value: [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, apptid],
+            type: queryType,
+        }
+
+         await setIsolationLevel(node, "READ UNCOMMITTED");
+         const result =  await makeTransaction(node, nodeNum, query, apptid );
+
+         if (result.affectedRows > 0) {
+            console.log("Dev Options: Update Success");
+        } else {
+            console.log("Dev Options: Update Error");
+        }
+     } else if (queryType === "DELETE") {
+        const deleteStatement = req.body.query;
+        console.log(deleteStatement)
+        const apptid = deleteStatement.match(/apptid\s*=\s*'([^']+)'/)[1];
+        id =apptid;
+
+        const query = {
+            statement: "DELETE FROM appointments WHERE apptid = ?",
+            value: [apptid],
+            type: "queryType",
+        };  
+
+        await setIsolationLevel(node, "READ UNCOMMITTED");
+         const result =  await makeTransaction(node, nodeNum, query, apptid );
+         if (result.affectedRows > 0) {
+            console.log("Dev Options: Delete Success");
+        } else {
+            console.log("Dev Options: Delete Error");
+        }
+     }
+
+     //display row that is being queried
+     let selectQuery;
+     if (queryType === "SELECT") {
+        selectQuery = req.body.query;
+     } else {
+        selectQuery = `SELECT * FROM appointments WHERE apptid = '${id}';`;
+     }
+
+     const data = await searchQuery(nodeNum, selectQuery);
+ 
+     if (data) {
+         res.send(data); 
+     } else {
+         res.status(404).json({message: 'No records found.'});
+     }
+    } catch (error) {
+     res.status(500).json({ message: "Error fetching data." }); 
     }
-   } catch (error) {
-    res.status(500).json({ message: "Error fetching data." }); 
    }
+ 
 })
 
 app.post("/api/update", async (req, res) => {
@@ -171,13 +247,11 @@ app.post("/api/update", async (req, res) => {
         }
 
         const result = await performTransaction(query, apptid);
-        
         if (result.affectedRows > 0) {
             res.status(200).json({ message: "Data updated successfully." });
         } else {
             res.status(404).json({ message: "Record not found." });
         }
-
     } catch (error) {
         console.error("Error updating data:", error);
         res.status(500).json({ message: "Error updating data." });
