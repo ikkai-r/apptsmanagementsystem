@@ -70,8 +70,6 @@ const fetchData = async (query) => {
         }
 };
 
-syncCentralNode();
-
 const searchQuery = async (node, query) => {
     const connectedNode = await connectNode(node);
     if(connectNode) {
