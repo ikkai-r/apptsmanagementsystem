@@ -42,7 +42,7 @@ const dbFuncs = {
 
       //insert log
       await node.query(
-        "UPDATE logs_table SET commit = 1 WHERE id = (SELECT max_id FROM (SELECT MAX(id) AS max_id FROM logs_table) AS max_id_table)"
+        "UPDATE logs_table SET commit = 1 WHERE id = (SELECT max_id FROM (SELECT MAX(id) AS max_id FROM logs_table) AS max_id_table);"
       );
 
       node.commit();
@@ -56,6 +56,49 @@ const dbFuncs = {
       return error;
     }
   },
+
+  makeTransactionWithSleep: async(node, nodeNum, query, id) => {
+    //with json
+    let [rows] = [];
+    try {
+      await node.beginTransaction();
+       [rows] = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
+
+      await node.query(
+        "INSERT INTO logs (type, record, node, commit) VALUES (?,?,?,?);",
+        [query.type, JSON.stringify(rows[0]), nodeNum, 0],
+      );
+
+      //lock transaction
+      await node.query(
+        "SELECT * FROM appointments WHERE apptid = ? FOR UPDATE;",
+        [id]
+      );
+
+      //execute query
+      const [result] = await node.query(query.statement, query.value);
+
+      [rows] = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
+
+      //insert log
+      //not updating yet V_V idk why
+      await node.query(
+        "UPDATE logs SET record = ?, commit = ? WHERE id = (SELECT max_id FROM (SELECT MAX(id) AS max_id FROM logs_table) AS max_id_table)",
+        [JSON.stringify(rows[0]), 1]
+    );
+
+      node.commit();
+      node.release();
+      return result;
+    } catch(error) {
+      console.log(error)
+      console.log("Rolled back the data.");
+      console.log(error);
+      node.rollback(node);
+      node.release();
+      return error;
+    }
+  }
 };
 
 module.exports = dbFuncs;
