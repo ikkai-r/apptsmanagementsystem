@@ -3,6 +3,7 @@ const express = require('express');
 const app = express();
 const cors = require("cors");
 const PORT = process.env.PORT;
+const { queryNode } = require('./nodes.js');
 
 const fetchData = async (node, query) => {
     try {
@@ -47,7 +48,7 @@ app.post("/api/submitDevOptions", async (req, res) => {
     if (data) {
         res.send(data[0]); 
     } else {
-        res.json({message: 'No records found.'});
+        res.status(404).json({message: 'No records found.'});
     }
    } catch (error) {
     res.status(500).json({ message: "Error fetching data." }); 
@@ -66,7 +67,6 @@ app.post("/api/update", async (req, res) => {
         const queuedate = new Date(req.body.queuedate)
         const starttime = new Date(req.body.starttime)
         const endtime = new Date(req.body.endtime)
-      
 
         const [result] = await queryNode("1", 
         "UPDATE appointments SET pxid = ?, clinicid = ?, regionname = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ? WHERE apptid = ?",

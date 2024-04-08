@@ -12,6 +12,7 @@ interface Appointment {
     queuedate: string;
     starttime: string;
     endtime: string;
+    message: string;
 }
 
 export default function DevOptions() {
@@ -51,7 +52,7 @@ export default function DevOptions() {
 
     return(
         <>
-        <form id="devOptions" className="relative" onSubmit={onSubmit}>
+        <form id="devOptions" className="relative pt-10" onSubmit={onSubmit}>
             <div className='text-gray-900 font-bold'>Dev Options</div>
                 <label htmlFor="node" className="block mb-2 text-sm font-medium text-gray-900">Nodes</label>
                 <select id="node" name="node" className=" text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
@@ -61,9 +62,9 @@ export default function DevOptions() {
                 </select>
                 <label htmlFor="query" className="block mb-2 text-sm font-medium text-gray-900">Query</label>
             <input type="text" name="query" id="query" className="shadow-sm text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder={"SELECT ..."}/>
-            <Button color="green" type='submit'>Submit</Button>
+            <Button className="mt-5" color="green" type='submit'>Submit</Button>
         </form>
-        {appointment && ( <table>
+        {appointment && appointment.apptid && ( <table>
         <thead className="text-xs text-gray-700 uppercase bg-gray-50  ">
                     <tr>
                         <th scope="col" className="px-3 py-3">
@@ -117,6 +118,12 @@ export default function DevOptions() {
     
         </tbody>
         </table>     )}
+
+        {
+            appointment && !appointment.apptid && (
+                <p className='text-2xl bg-zinc-300 mt-5 rounded-md p-5'>No records found</p>
+            )
+        }
         </>
     )
 }
