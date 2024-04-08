@@ -3,36 +3,11 @@ const express = require('express');
 const app = express();
 const cors = require("cors");
 const PORT = process.env.PORT;
-const mysql = require('mysql2');
-
-const centralNode = mysql.createPool({
-    host: process.env.HOST,
-    port: process.env.CENTRAL_NODE_PORT,
-    user: process.env.CENTRAL_NODE_USER,
-    password: process.env.CENTRAL_NODE_PW,
-    database: process.env.DB
-}).promise();
-
-const node1 = mysql.createPool({
-    host: process.env.HOST,
-    port: process.env.NODE1_PORT,
-    user: process.env.NODE1_USER,
-    password: process.env.NODE1_PW,
-    database: process.env.DB
-}).promise();
-
-const node2 = mysql.createPool({
-    host: process.env.HOST,
-    port: process.env.NODE2_PORT,
-    user: process.env.NODE2_USER,
-    password: process.env.NODE2_PW,
-    database: process.env.DB
-}).promise();
 
 const fetchData = async (node, query) => {
     try {
         console.log("database connected!")
-        const [rows] = await  queryNode(node, query, null)
+        const [rows] = await queryNode(node, query, null)
         if (rows.length === 0) {
             console.log("No records found.");
             return null;
