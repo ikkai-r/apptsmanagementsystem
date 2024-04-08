@@ -1,28 +1,41 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const cors = require("cors");
-const PORT = 5000;
+const PORT = process.env.PORT;
 const mysql = require('mysql2');
 
-// Create a MySQL connection pool
-const pool = mysql.createPool({
-    host: 'ccscloud.dlsu.edu.ph',
-    port: '20153',
-    user: 'user1',
-    password: 'n0dE#001',
-    database: 'medical_appts'
+const centralNode = mysql.createPool({
+    host: process.env.HOST,
+    port: process.env.CENTRAL_NODE_PORT,
+    user: process.env.CENTRAL_NODE_USER,
+    password: process.env.CENTRAL_NODE_PW,
+    database: process.env.DB
 }).promise();
 
+const node1 = mysql.createPool({
+    host: process.env.HOST,
+    port: process.env.NODE1_PORT,
+    user: process.env.NODE1_USER,
+    password: process.env.NODE1_PW,
+    database: process.env.DB
+}).promise();
+
+const node2 = mysql.createPool({
+    host: process.env.HOST,
+    port: process.env.NODE2_PORT,
+    user: process.env.NODE2_USER,
+    password: process.env.NODE2_PW,
+    database: process.env.DB
+}).promise();
 
 const fetchData = async () => {
     try {
-        console.log("database connected!")
-        const [rows] = await pool.query("SELECT * FROM appointments LIMIT 15;");
+        const [rows] = await centralNode.query("SELECT * FROM appointments LIMIT 5;");
         if (rows.length === 0) {
             console.log("No records found.");
             return null;
         } else {
-            //console.log("Fetched data:", rows);
             return rows;
         }
     } catch (error) {
