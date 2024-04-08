@@ -3,8 +3,8 @@ const express = require('express');
 const app = express();
 const cors = require("cors");
 const PORT = process.env.PORT;
-const {connectNode} = require('./nodes.js');
-const {makeTransaction, setIsolationLevel} = require('./db.js');
+const {connectNode} = require('./utils/nodes.js');
+const {makeTransaction, setIsolationLevel} = require('./utils/db.js');
 
 const fetchData = async (query) => {
         const centralNodeConnection = await connectNode(1);
