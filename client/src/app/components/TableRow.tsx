@@ -13,6 +13,11 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
     const [successDelModal, setSuccessDelModal] = useState(false);
     const [successUpdModal, setSuccessUpdModal] = useState(false);
     const [selectedDate, setSelectedDate] = useState(null);
+    const [pxID, setPxid] = useState(pxid);
+    const [clinicID, setClinicid] = useState(clinicid);
+    const [regionName, setRegionName] = useState(regionname);
+    const [statusState, setStatusState] = useState(status);
+
     
     const handleDateChange = (newDate) => {
       setSelectedDate(newDate);
@@ -39,7 +44,6 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
             body: JSON.stringify(serializedData)
           })
           .then(response => {
-            response.json()
             if(response.status == 200) {
               onUpdate();
               setOpenModal(false);
@@ -50,6 +54,8 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
                 setSuccessUpdModal(false);
               }, 1000);
             }
+
+            return response.json()
           })
           .then(
             data => console.log(data)
@@ -93,7 +99,6 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
             }
           })
           .catch(error => console.error('Error:', error));
-        
     }
 
     return (
@@ -152,13 +157,13 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
                     <div className="grid grid-cols-6 gap-6">
                         <div className="col-span-6">
                             <label htmlFor="apptid" className="block mb-2 text-sm font-medium text-gray-900">Appointment ID</label>
-                            <input disabled type="text" className="shadow-sm bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" value={apptid} required/>
+                            <input disabled type="text" className="shadow-sm bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" value={apptid} readOnly  />
                             <input style={{'display': 'none'}} type="text" name="apptid" id="apptid" className="shadow-sm bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" value={apptid} required/>
                         </div>
                        
                         <div className="col-span-6">
                             <label htmlFor="status" className="block mb-2 text-sm font-medium text-gray-900">Status</label>
-                            <select id="status" name="status" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                            <select id="status" name="status" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" onChange={(e) => setStatusState(e.target.value)}  required>
                               <option value="Complete" selected={status === 'Complete'}>Complete</option>
                               <option value="Queued" selected={status === 'Queued'}>Queued</option>
                               <option value="Serving" selected={status === 'Serving'}>Serving</option>
@@ -168,15 +173,15 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
                         </div>
                         <div className="col-span-6">
                             <label htmlFor="pxid" className="block mb-2 text-sm font-medium text-gray-900">Patient ID</label>
-                            <input type="text" name="pxid" id="pxid" className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" value={pxid} required/>
+                            <input type="text" name="pxid" id="pxid" className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" value={pxID} onChange={(e) => setPxid(e.target.value)} required  />
                         </div>
                         <div className="col-span-6">
                             <label htmlFor="clinicid" className="block mb-2 text-sm font-medium text-gray-900">Clinic ID</label>
-                            <input type="text" name="clinicid" id="clinicid" className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" value={pxid} required/>
+                            <input type="text" name="clinicid" id="clinicid" className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" value={clinicID} onChange={(e) => setClinicid(e.target.value)} required />
                         </div>
                         <div className="col-span-6">
                             <label htmlFor="regionname" className="block mb-2 text-sm font-medium text-gray-900">Region Name</label>
-                            <select id="regionname" name="regionname" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                            <select id="regionname" name="regionname" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" onChange={(e) => setRegionName(e.target.value)}  required>
                               <option value="National Capital Region (NCR)" selected={status === 'National Capital Region (NCR)'}>National Capital Region (NCR)</option>
                               <option value="Ilocos Region (I)" selected={regionname === 'Ilocos Region (I)'}>Ilocos Region (I)</option>
                               <option value="Cagayan Valley (II)" selected={regionname === 'Cagayan Valley (II)'}>Cagayan Valley (II)</option>

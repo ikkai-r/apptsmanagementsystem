@@ -29,9 +29,10 @@ const node2 = mysql.createPool({
     database: process.env.DB
 }).promise();
 
-const fetchData = async () => {
+const fetchData = async (node, query) => {
     try {
-        const [rows] = await centralNode.query("SELECT * FROM appointments LIMIT 5;");
+        console.log("database connected!")
+        const [rows] = await  queryNode(node, query, null)
         if (rows.length === 0) {
             console.log("No records found.");
             return null;
@@ -52,7 +53,7 @@ app.use(cors());
 
 app.get("/api/view", async (req, res) => {
     try {
-        const data = await fetchData();
+        const data = await fetchData("1", "SELECT * FROM appointments LIMIT 15;");
         if (data) {
             res.send(data); 
         } else {
@@ -63,9 +64,24 @@ app.get("/api/view", async (req, res) => {
     }
 })
 
+app.post("/api/submitDevOptions", async (req, res) => {
+    console.log(req.body.node)
+    console.log(req.body.query)
+   try {
+    const data = await fetchData(req.body.node, req.body.query);
+    if (data) {
+        res.send(data[0]); 
+    } else {
+        res.json({message: 'No records found.'});
+    }
+   } catch (error) {
+    res.status(500).json({ message: "Error fetching data." }); 
+   }
+})
+
 app.post("/api/update", async (req, res) => {
     try {
-
+        console.log(req.body)
         const apptid = req.body.apptid;
         const pxid = req.body.pxid;
         const clinicid = req.body.clinicid;
@@ -75,10 +91,11 @@ app.post("/api/update", async (req, res) => {
         const queuedate = new Date(req.body.queuedate)
         const starttime = new Date(req.body.starttime)
         const endtime = new Date(req.body.endtime)
+      
 
-        const [result] = await pool.query(
-            "UPDATE appointments SET pxid = ?, clinicid = ?, regionname = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ? WHERE apptid = ?",
-            [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, apptid]
+        const [result] = await queryNode("1", 
+        "UPDATE appointments SET pxid = ?, clinicid = ?, regionname = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ? WHERE apptid = ?",
+        [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, apptid]
         );
 
         if (result.affectedRows > 0) {
