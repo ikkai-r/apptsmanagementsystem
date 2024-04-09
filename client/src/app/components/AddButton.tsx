@@ -155,8 +155,8 @@ export default function AddButton() {
                         <div className="col-span-6">
                             <label htmlFor="type" className="block mb-2 text-sm font-medium text-gray-900">Type</label>
                             <select id="type" name="type" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" onChange={(e) => setRegionName(e.target.value)}  required>
-                              <option value="consultation">Consultation</option>
-                              <option value="inpatient">Inpatient</option>
+                              <option value="Consultation">Consultation</option>
+                              <option value="Inpatient">Inpatient</option>
                             </select>
                         </div>
                     </div>

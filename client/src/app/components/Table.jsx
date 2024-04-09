@@ -54,6 +54,9 @@ export default function Table() {
                             End Time
                         </th>
                         <th scope="col" className="px-3 py-3">
+                            Type
+                        </th>
+                        <th scope="col" className="px-3 py-3">
                             Action
                         </th>
                     </tr>
@@ -71,6 +74,7 @@ export default function Table() {
                     queuedate={appointment.queuedate}
                     starttime={appointment.starttime}
                     endtime={appointment.endtime}
+                    apptType={appointment.type}
                     onUpdate={handleUpdate}
                 />
             ))}

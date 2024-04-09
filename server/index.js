@@ -379,10 +379,11 @@ app.post("/api/update", async (req, res) => {
         const queuedate = new Date(req.body.queuedate)
         const starttime = new Date(req.body.starttime)
         const endtime = new Date(req.body.endtime)
-        
+        const type = req.body.type;
+
         const query = {
-            statement: "UPDATE appointments SET pxid = ?, clinicid = ?, regionname = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ? WHERE apptid = ?",
-            value: [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, apptid],
+            statement: "UPDATE appointments SET pxid = ?, clinicid = ?, regionname = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ?, type = ? WHERE apptid = ?",
+            value: [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid],
             type: "UPDATE",
         }
 

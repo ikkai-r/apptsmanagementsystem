@@ -7,7 +7,7 @@ import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import dayjs from 'dayjs';
 
 
-export default function TableRow({ apptid, pxid, clinicid, regionname, timequeued, queuedate, starttime, endtime, status, onUpdate}) {
+export default function TableRow({ apptid, pxid, clinicid, regionname, timequeued, queuedate, starttime, endtime, status, apptType, onUpdate}) {
     const [openModal, setOpenModal] = useState(false);
     const [sureModal, setSureModal] = useState(false);
     const [successDelModal, setSuccessDelModal] = useState(false);
@@ -127,7 +127,7 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
         </td> 
 
         <td className="px-3 py-4 text-gray-900">
-            {status}
+        {status}
         </td>
 
         <td className="px-3 py-4 text-gray-900">
@@ -142,6 +142,9 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
         </td>
         <td className="px-3 py-4 text-gray-900">
         {endtime === null ? '' : endtime.substring(0, 10) + ' ' + endtime.substring(11, 19)}
+        </td>
+        <td className="px-3 py-4 text-gray-900">
+        {apptType}
         </td>
         <td className="flex  gap-4 px-3 py-4 justify-center items-center">
             <a href="#" onClick={() => setOpenModal(true)} className="font-medium text-blue-600 hover:underline">Edit</a>
@@ -228,6 +231,13 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
                            value={endtime && dayjs(endtime)}                          
                                 onChange={handleDateChange}
                                 />
+                        </div>
+                        <div className="col-span-6">
+                            <label htmlFor="type" className="block mb-2 text-sm font-medium text-gray-900">Type</label>
+                            <select id="type" name="type" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" onChange={(e) => setRegionName(e.target.value)}  required>
+                              <option value="Consultation" selected={apptType === 'Consultation'}>Consultation</option>
+                              <option value="Inpatient" selected={apptType === 'Inpatient'}>Inpatient</option>
+                            </select>
                         </div>
                     </div>
                 </div>
