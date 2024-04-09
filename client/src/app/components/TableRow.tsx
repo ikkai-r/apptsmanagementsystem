@@ -85,7 +85,6 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
             body: JSON.stringify(serializedData)
           })
           .then(response => {
-            response.json()
             if(response.status == 200) {
               
               onUpdate();
@@ -97,6 +96,7 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
                 setSuccessDelModal(false);
               }, 1000);
             }
+            return response.json();
           })
           .catch(error => console.error('Error:', error));
     }

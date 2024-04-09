@@ -1,6 +1,6 @@
 import React, { FormEvent, useState } from 'react';
 import { Button } from "flowbite-react";
-import TableRow from './TableRow'
+import QueryRow from './QueryRow';
 
 interface Appointment {
     apptid: string;
@@ -94,14 +94,11 @@ export default function DevOptions() {
                         <th scope="col" className="px-3 py-3">
                             End Time
                         </th>
-                        <th scope="col" className="px-3 py-3">
-                            Action
-                        </th>
                     </tr>
                 </thead>
                 <tbody>
      
-            <TableRow
+            <QueryRow
                 key={1}
                 apptid={appointment.apptid}
                 pxid={appointment.pxid}
@@ -112,8 +109,6 @@ export default function DevOptions() {
                 queuedate={appointment.queuedate}
                 starttime={appointment.starttime}
                 endtime={appointment.endtime}
-                //bug 2
-                onUpdate={null}
             />
     
         </tbody>

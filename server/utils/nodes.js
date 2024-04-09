@@ -28,9 +28,9 @@ const node3 = mysql.createPool({
 
 const connectNode = async (node) => {
     switch (node) {
-        case '1': return await node1.getConnection();
-        case '2': return await node2.getConnection();
-        case '3': return await node3.getConnection();
+        case 1: return await node1.getConnection();
+        case 2: return await node2.getConnection();
+        case 3: return await node3.getConnection();
     }
 };
 
