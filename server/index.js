@@ -206,8 +206,9 @@ app.post("/api/insert", async (req, res) => {
         const queuedate = new Date(req.body.queuedate)
         const starttime = new Date(req.body.starttime)
         const endtime = new Date(req.body.endtime)
+        const type = req.body.type;
         const query = {
-            statement: "INSERT appointments SET VALUES(apptid = ?, pxid = ?, clinicid = ?, regionname = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ?, type=?)",
+            statement: "INSERT INTO appointments (apptid, pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type) VALUES (?,?,?,?,?,?,?,?,?,?);",
             value: [apptid, pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type],
             type: "INSERT",
         }
@@ -236,6 +237,7 @@ app.post("/api/update", async (req, res) => {
         const queuedate = new Date(req.body.queuedate)
         const starttime = new Date(req.body.starttime)
         const endtime = new Date(req.body.endtime)
+        
         const query = {
             statement: "UPDATE appointments SET pxid = ?, clinicid = ?, regionname = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ? WHERE apptid = ?",
             value: [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, apptid],
