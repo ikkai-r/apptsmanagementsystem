@@ -350,7 +350,7 @@ app.post("/api/insert", async (req, res) => {
         const starttime = new Date(req.body.starttime)
         const endtime = new Date(req.body.endtime)
         const query = {
-            statement: "INSERT INTO appointments (pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid) VALUES (?,?,?,?,?,?,?,?,?,?,?);",
+            statement: "INSERT INTO appointments (pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid) VALUES (?,?,?,?,?,?,?,?,?,?);",
             value: [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid],
             type: "INSERT",
         }
