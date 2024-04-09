@@ -1,20 +1,6 @@
-const { connectNode } = require("./nodes.js");
+const {connectNode} = require('../nodes.js');
 
 const dbFuncs = {
-  getLogs: async (node) => {
-    const connectedNode = connectNode(node);
-    try {
-      if (connectedNode) {
-        const [rows] = connectNode.query("SELECT * FROM logs;");
-        return rows;
-      } else {
-        console.log("Node is down");
-      }
-    } catch (error) {
-      return error;
-    }
-  },
-
   setIsolationLevel: async (node, isolationLevel) => {
     try {
       await node.query("SET TRANSACTION ISOLATION LEVEL" + isolationLevel);
@@ -23,6 +9,56 @@ const dbFuncs = {
     }
   },
 
+    getLogs: async (node) => {
+        const connectedNode = await connectNode(node);
+        try {
+            if (connectedNode) {
+                const [rows] = await connectedNode.query("SELECT * FROM logs;");
+                return rows;
+            } else {
+                console.log("Node " + node + " is down");
+                return null;
+            }
+        } catch(error) {
+            return error;
+        }
+    },
+
+    getLogsWithCondition: async (node, query) => {
+        const connectedNode = await connectNode(node);
+        try {
+            if (connectedNode) {
+                let queryOrig = "SELECT * FROM logs";
+            
+                if (query && query.length > 0) {
+                    queryOrig += " WHERE " + query[0];
+                }
+
+                const [rows] = await connectedNode.query(queryOrig, query.slice(1));
+                return rows;
+            } else {
+                console.log("Node " + node + " is down");
+                return null;
+            }
+        } catch(error) {
+            return error;
+        }
+    },
+
+    getLatestLog: async (node) => {
+        const connectedNode = await connectNode(node);
+        try {
+            if (connectedNode) {
+                const [rows] = await connectedNode.query("SELECT * FROM logs ORDER BY id DESC LIMIT 1;");
+                return rows;
+            } else {
+                console.log("Node " + node + " is down");
+                return null;
+            }
+        } catch(error) {
+            return error;
+        }
+    },
   makeTransaction: async (node, nodeNum, query, id) => {
     try {
       await node.beginTransaction();
