@@ -28,7 +28,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "src/app/LandingPage/LandingPage.jsx"  ],
   "exclude": [
     "node_modules"
   ]
