@@ -201,13 +201,14 @@ app.post("/api/insert", async (req, res) => {
         const clinicid = req.body.clinicid;
         const regionname = req.body.regionname;
         const status = req.body.status;
+        const type = req.body.type;
         const timequeued = new Date(req.body.timequeued)
         const queuedate = new Date(req.body.queuedate)
         const starttime = new Date(req.body.starttime)
         const endtime = new Date(req.body.endtime)
         const query = {
-            statement: "INSERT appointments SET VALUES(apptid = ?, pxid = ?, clinicid = ?, regionname = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ?)",
-            value: [apptid, pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime],
+            statement: "INSERT appointments SET VALUES(apptid = ?, pxid = ?, clinicid = ?, regionname = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ?, type=?)",
+            value: [apptid, pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type],
             type: "INSERT",
         }
 

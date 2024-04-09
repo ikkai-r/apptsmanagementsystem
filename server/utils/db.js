@@ -66,8 +66,26 @@ const dbFuncs = {
     if (query.type === 'INSERT') {
       //TODO: implement insert
 
-      //TODO: make a json of appointments
+      // Extract values from the query object
+      const { value } = query;
+      const [apptid, pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime] = value;
       
+      // Create a JSON object representing the appointment
+      const appointment = {
+          apptid: apptid,
+          pxid: pxid,
+          clinicid: clinicid,
+          regionname: regionname,
+          status: status,
+          timequeued: timequeued,
+          queuedate: queuedate,
+          starttime: starttime,
+          endtime: endtime
+      };
+
+      // Log the appointment JSON object
+      console.log('Appointment:', appointment);
+
       try {
           await node.beginTransaction();
 
