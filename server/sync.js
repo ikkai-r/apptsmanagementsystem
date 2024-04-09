@@ -1,4 +1,4 @@
-const { getLogsWithCondition, getLatestLog } = require('./utils/db.js');
+const { getLogsWithCondition, getLatestLog, selectAppt } = require('./utils/db.js');
 const { performLogTransaction } = require('./utils/transactions.js');
 
 const syncFuncs = {
@@ -30,18 +30,27 @@ const syncFuncs = {
 
                     if(typeQuery === 'INSERT') {
                         
-                        const query = {
-                            statement: "INSERT INTO appointments (pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid) VALUES (?,?,?,?,?,?,?,?,?,?,?);",
-                            value: [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid],
-                            type: "INSERT",
-                        }
+                        //check if the insert already exists, just incase it was already committed
+                        // change node query part
+                        exists = selectAppt(1, apptid);
 
-                        const result = await performLogTransaction(1, query, apptid);
-                        if(result instanceof Error) {
-                            console.log('Node 1 did not succeed in replicating');
-                        } else {
-                            console.log('Node 1 succeeded in replicating');
+                        // if record does not exist
+                        if (exists.length === 0){
+                            // if it doesn't exist
+                            const query = {
+                                statement: "INSERT INTO appointments (pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid) VALUES (?,?,?,?,?,?,?,?,?,?,?);",
+                                value: [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid],
+                                type: "INSERT",
+                            }
+
+                            const result = await performLogTransaction(1, query, apptid);
+                            if(result instanceof Error) {
+                                console.log('Node 1 did not succeed in replicating');
+                            } else {
+                                console.log('Node 1 succeeded in replicating');
+                            }
                         }
+                      
 
                     } else if (typeQuery === 'UPDATE') {
 
@@ -60,17 +69,23 @@ const syncFuncs = {
 
                     } else if (typeQuery === 'DELETE') {
 
-                        const query = {
-                            statement: "DELETE FROM appointments WHERE apptid = ?",
-                            value: [apptid],
-                            type: "queryType",
-                        };  
+                        //check if the record already exists, just incase it was already committed
+                        exists = selectAppt(1, apptid);
 
-                        const result = await performLogTransaction(1, query, apptid);
-                        if(result instanceof Error) {
-                            console.log('Node 1 did not succeed in replicating');
-                        } else {
-                            console.log('Node 1 succeeded in replicating');
+                        // if record still exists
+                        if (exists.length > 0){
+                            const query = {
+                                statement: "DELETE FROM appointments WHERE apptid = ?",
+                                value: [apptid],
+                                type: "queryType",
+                            };  
+
+                            const result = await performLogTransaction(1, query, apptid);
+                            if(result instanceof Error) {
+                                console.log('Node 1 did not succeed in replicating');
+                            } else {
+                                console.log('Node 1 succeeded in replicating');
+                            }
                         }
                     }
                 }
@@ -122,16 +137,24 @@ const syncFuncs = {
 
                         if(typeQuery === 'INSERT') {
 
-                            const query = {
-                            statement: "INSERT INTO appointments (pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid) VALUES (?,?,?,?,?,?,?,?,?,?,?);",
-                            value: [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid],
-                            type: "INSERT",
-                        }
-                            const result = await performLogTransaction(2, query, apptid);
-                            if(result instanceof Error) {
-                                console.log('Node 2 did not succeed in replicating');
-                            } else {
-                                console.log('Node 2 succeeded in replication');
+                            //check if the insert already exists, just incase it was already committed
+                            // change node query part
+                            exists = selectAppt(1, apptid);
+
+                            // if record does not exist
+                            if (exists.length === 0){
+                            // if it doesn't exist
+                                const query = {
+                                statement: "INSERT INTO appointments (pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid) VALUES (?,?,?,?,?,?,?,?,?,?,?);",
+                                value: [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid],
+                                type: "INSERT",
+                                }
+                                const result = await performLogTransaction(2, query, apptid);
+                                if(result instanceof Error) {
+                                    console.log('Node 2 did not succeed in replicating');
+                                } else {
+                                    console.log('Node 2 succeeded in replication');
+                                }
                             }
 
                         } else if (typeQuery === 'UPDATE') {
@@ -151,17 +174,24 @@ const syncFuncs = {
 
                         } else if (typeQuery === 'DELETE') {
 
-                            const query = {
-                                statement: "DELETE FROM appointments WHERE apptid = ?",
-                                value: [apptid],
-                                type: "queryType",
-                            };  
+                             //check if the record already exists, just incase it was already committed
+                            exists = selectAppt(1, apptid);
 
-                            const result = await performLogTransaction(2, query, apptid);
-                            if(result instanceof Error) {
-                                console.log('Node 2 did not succeed in replicating');
-                            } else {
-                                console.log('Node 2 succeeded in replication');
+                            // if record still exists
+                            if (exists.length > 0){
+
+                                const query = {
+                                    statement: "DELETE FROM appointments WHERE apptid = ?",
+                                    value: [apptid],
+                                    type: "queryType",
+                                };  
+
+                                const result = await performLogTransaction(2, query, apptid);
+                                if(result instanceof Error) {
+                                    console.log('Node 2 did not succeed in replicating');
+                                } else {
+                                    console.log('Node 2 succeeded in replication');
+                                }
                             }
                         }
                     }
@@ -211,17 +241,25 @@ const syncFuncs = {
 
                     if(typeQuery === 'INSERT') {
 
-                        const query = {
-                            statement: "INSERT INTO appointments (pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid) VALUES (?,?,?,?,?,?,?,?,?,?,?);",
-                            value: [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid],
-                            type: "INSERT",
-                        }
-                        const result = await performLogTransaction(3, query, apptid);
-                        if(result instanceof Error) {
-                                console.log('Node 3 did not succeed in replicating');
-                            } else {
-                                console.log('Node 3 succeeded in replication');
+                        //check if the insert already exists, just incase it was already committed
+                        // change node query part
+                        exists = selectAppt(1, apptid);
+
+                        // if record does not exist
+                        if (exists.length === 0){
+                            // if it doesn't exist
+                            const query = {
+                                statement: "INSERT INTO appointments (pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid) VALUES (?,?,?,?,?,?,?,?,?,?,?);",
+                                value: [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid],
+                                type: "INSERT",
                             }
+                            const result = await performLogTransaction(3, query, apptid);
+                            if(result instanceof Error) {
+                                    console.log('Node 3 did not succeed in replicating');
+                                } else {
+                                    console.log('Node 3 succeeded in replication');
+                                }
+                        }
 
                     } else if (typeQuery === 'UPDATE') {
 
@@ -240,18 +278,25 @@ const syncFuncs = {
 
                     } else if (typeQuery === 'DELETE') {
 
-                        const query = {
-                            statement: "DELETE FROM appointments WHERE apptid = ?",
-                            value: [apptid],
-                            type: "queryType",
-                        };  
+                         //check if the record already exists, just incase it was already committed
+                         exists = selectAppt(1, apptid);
 
-                        const result = await performLogTransaction(3, query, apptid);
-                        if(result instanceof Error) {
-                                console.log('Node 3 did not succeed in replicating');
-                            } else {
-                                console.log('Node 3 succeeded in replication');
-                            }
+                         // if record still exists
+                         if (exists.length > 0){
+
+                            const query = {
+                                statement: "DELETE FROM appointments WHERE apptid = ?",
+                                value: [apptid],
+                                type: "queryType",
+                            };  
+
+                            const result = await performLogTransaction(3, query, apptid);
+                            if(result instanceof Error) {
+                                    console.log('Node 3 did not succeed in replicating');
+                                } else {
+                                    console.log('Node 3 succeeded in replication');
+                                }
+                         }
                     }
                 }
             }
