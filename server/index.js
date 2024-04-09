@@ -5,11 +5,96 @@ const cors = require("cors");
 const PORT = process.env.PORT;
 const {connectNode} = require('./utils/nodes.js');
 const {performTransaction} = require('./utils/transactions.js');
-const {syncCentralNode} = require('./sync.js');
+const {syncCentralNode, syncOtherNodes} = require('./sync.js');
+
 
 const fetchData = async (query) => {
-        const centralNodeConnection = await connectNode(1);
+    try {
+        console.log('Connecting to central node and nodes 2 and 3...');
 
+        const centralNodePromise = connectNode(1);
+        const node2Promise = connectNode(2);
+        const node3Promise = connectNode(3);
+
+        const [centralNodeConnection, Node2Connection, Node3Connection] = await Promise.all([
+            centralNodePromise,
+            node2Promise,
+            node3Promise
+        ]);
+
+        // Check if central node connection succeeded
+        if (centralNodeConnection) {
+            try {
+                const [rows] = await centralNodeConnection.query(query);
+                    if (rows.length === 0) {
+                        console.log("No records found.");
+                        return null;
+                    } else {
+                        return rows;
+                    }
+              } catch (err) {
+                console.error("Failed to query central node:", err);
+              } finally {
+                centralNodeConnection.release();
+              }
+        } else {
+            console.log('Failed to connect to central node, trying nodes 2 and 3...');
+            
+            try {
+                let node2rows = null;
+                let node3rows = null;
+            
+                if (Node2Connection) {
+                    const result = await Node2Connection.query(query);
+                    node2rows = result ? result[0] : null;
+                }
+            
+                if (Node3Connection) {
+                    const result = await Node3Connection.query(query);
+                    node3rows = result ? result[0] : null;
+                }
+            
+                const combinedRows = [...(node2rows || []), ...(node3rows || [])].sort((a, b) => {
+                    return b.apptid - a.apptid;
+                });
+            
+                const rows = combinedRows.slice(0, 15);
+                
+                console.log('connected to node 2 and node 3')
+                if (rows.length === 0) {
+                    console.log("No records found.");
+                    return null;
+                } else {
+                    return rows;
+                }
+
+            } catch (err) {
+                console.error("Failed to query to slave nodes:", err);
+              } finally {
+                if(Node2Connection) {
+                    Node2Connection.release();
+                }
+
+                if(Node3Connection) {
+                    Node3Connection.release();
+                }
+              }
+        }
+    } catch (err) {
+        console.error("Failed to connect to nodes:", err);
+    }
+};
+
+
+    /**
+     * 
+     * 
+     * 
+const fetchData = async (query) => {
+
+    try {
+        const centralNodeConnection = await connectNode(1);
+        
         if(centralNodeConnection) {
             //master is working
             try {
@@ -27,6 +112,61 @@ const fetchData = async (query) => {
               }
 
         } else {
+            console.log('Failed to connect to central node, trying node 2 and 3...')
+            // if master fails, build database from node2 and node3
+            // Promises to connect to node 2 and node 3
+            const Node2Promise = connectNode(2);
+            const Node3Promise = connectNode(3);
+
+            // Wait for both connections to resolve or reject
+            const [Node2Connection, Node3Connection] = await Promise.all([Node2Promise, Node3Promise]);
+
+            try {
+                let node2rows = null;
+                let node3rows = null;
+            
+                if (Node2Connection) {
+                    const result = await Node2Connection.query(query);
+                    node2rows = result ? result[0] : null;
+                }
+            
+                if (Node3Connection) {
+                    const result = await Node3Connection.query(query);
+                    node3rows = result ? result[0] : null;
+                }
+            
+                const combinedRows = [...(node2rows || []), ...(node3rows || [])].sort((a, b) => {
+                    return b.apptid - a.apptid;
+                });
+            
+                const rows = combinedRows.slice(0, 15);
+                
+                console.log('connected to node 2 and node 3')
+                if (rows.length === 0) {
+                    console.log("No records found.");
+                    return null;
+                } else {
+                    return rows;
+                }
+
+            } catch (err) {
+                console.error("Failed to query to slave nodes:", err);
+              } finally {
+                if(Node2Connection) {
+                    Node2Connection.release();
+                }
+
+                if(Node3Connection) {
+                    Node3Connection.release();
+                }
+              }
+            }
+    } catch(err) {
+        console.error("Failed to connect to nodes:", err);
+    }
+    
+        } else {
+            console.log('Failed to connect to central node, trying node 2 and 3...')
             // if master fails, build database from node2 and node3
             const Node2Connection = await connectNode(2);
             const Node3Connection = await connectNode(3);
@@ -70,7 +210,10 @@ const fetchData = async (query) => {
                 }
               }
         }
-};
+        };
+     */
+
+
 
 const searchQuery = async (node, query) => {
     const connectedNode = await connectNode(node);
@@ -207,8 +350,8 @@ app.post("/api/insert", async (req, res) => {
         const starttime = new Date(req.body.starttime)
         const endtime = new Date(req.body.endtime)
         const query = {
-            statement: "INSERT INTO appointments (apptid, pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type) VALUES (?,?,?,?,?,?,?,?,?,?);",
-            value: [apptid, pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type],
+            statement: "INSERT INTO appointments (pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid) VALUES (?,?,?,?,?,?,?,?,?,?,?);",
+            value: [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid],
             type: "INSERT",
         }
 
@@ -277,7 +420,6 @@ app.post("/api/delete", async (req, res) => {
     }
 });
 
-
 app.listen(PORT, () => {
-    console.log(`Server started on port ${PORT}`)
+    console.log(`Server started on port ${PORT}`);
 })

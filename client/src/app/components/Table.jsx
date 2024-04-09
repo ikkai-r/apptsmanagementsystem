@@ -10,21 +10,12 @@ export default function Table() {
         fetch("http://localhost:5000/api/view")
           .then(res => res.json())
           .then(data => {
-            if (JSON.stringify(data) !== JSON.stringify(appointments)) {
-                console.log('database changed');
-                setAppointments(data);
-            }
+            setAppointments(data);
           });
       };
     
       useEffect(() => {
         fetchData();
-
-        const intervalId = setInterval(fetchData, 1000);
-
-        return () => {
-            clearInterval(intervalId);
-        };
     }, []);
 
       const handleUpdate = () => {

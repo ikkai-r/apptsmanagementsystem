@@ -28,9 +28,27 @@ const node3 = mysql.createPool({
 
 const connectNode = async (node) => {
     switch (node) {
-        case 1: return await node1.getConnection();
-        case 2: return await node2.getConnection();
-        case 3: return await node3.getConnection();
+        case 1: 
+            try {
+                return await node1.getConnection();
+            } catch (error) {
+                console.log('Error occurred while getting connection from node 1:', error);
+                return null;
+            }
+        case 2: 
+            try {
+                return await node2.getConnection();
+            } catch (error) {
+                console.log('Error occurred while getting connection from node 2:', error);
+                return null;
+            }
+        case 3: 
+            try {
+                return await node3.getConnection();
+            } catch (error) {
+                console.log('Error occurred while getting connection from node 3:', error);
+                return null;
+            }
     }
 };
 
