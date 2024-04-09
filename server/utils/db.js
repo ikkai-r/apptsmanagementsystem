@@ -61,51 +61,15 @@ const dbFuncs = {
     },
 
   makeTransactionWithSleep: async(node, nodeNum, query, id) => {
-    //with json
+      let [rows] = [[{}]];
 
-    if (query.type === 'INSERT') {
-      //TODO: implement insert
-
-      //TODO: make a json of appointments
-      
-      try {
-          await node.beginTransaction();
-
-          //insert to logs
-          await node.query(
-            "INSERT INTO logs (type, record, node, commit) VALUES (?,?,?,?);",
-            [query.type, JSON.stringify(rows[0]), nodeNum, 0],
-          );
-
-          //execute query
-          const [result] = await node.query(query.statement, query.value);
-          [rows] = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
-
-          await node.query(
-            'UPDATE logs SET record = ? , commit = ? WHERE id = (SELECT max_id FROM (SELECT MAX(id) AS max_id FROM logs) AS max_id_table);',
-            [JSON.stringify(rows[0]), 1]
-        );
-
-          node.commit();
-          node.release();
-          return result;
-      } catch(error) {
-        console.log(error)
-        console.log("Rolled back the data.");
-        console.log(error);
-        node.rollback(node);
-        node.release();
-        return error;
-    }
-
-    } else {
-
-      //update & delete
-      let [rows] = [];
       try {
         await node.beginTransaction();
-        [rows] = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
 
+        if (query.type === "UPDATE" || query.type === "DELETE") {
+          rows = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
+        } 
+        
         await node.query(
           "INSERT INTO logs (type, record, node, commit) VALUES (?,?,?,?);",
           [query.type, JSON.stringify(rows[0]), nodeNum, 0],
@@ -119,7 +83,7 @@ const dbFuncs = {
 
         //execute query
         const [result] = await node.query(query.statement, query.value);
-        [rows] = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
+        rows = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
 
         await node.query(
           'UPDATE logs SET record = ? , commit = ? WHERE id = (SELECT max_id FROM (SELECT MAX(id) AS max_id FROM logs) AS max_id_table);',
@@ -139,8 +103,6 @@ const dbFuncs = {
       }
 
     }
-    
-  }
 };
 
 module.exports = dbFuncs;
