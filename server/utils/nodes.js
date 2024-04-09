@@ -1,4 +1,5 @@
 const mysql = require('mysql2');
+const mysql2 = require('mysql2/promise');
 const dotenv = require('dotenv');
 dotenv.config(); 
 
@@ -27,30 +28,37 @@ const node3 = mysql.createPool({
 }).promise();
 
 const connectNode = async (node) => {
+    let pool;
     switch (node) {
         case 1: 
-            try {
-                return await node1.getConnection();
-            } catch (error) {
-                console.log('Error occurred while getting connection from node 1:', error);
-                return null;
-            }
+            pool = node1;
+            break;
         case 2: 
-            try {
-                return await node2.getConnection();
-            } catch (error) {
-                console.log('Error occurred while getting connection from node 2:', error);
-                return null;
-            }
+            pool = node2;
+            break;
         case 3: 
-            try {
-                return await node3.getConnection();
-            } catch (error) {
-                console.log('Error occurred while getting connection from node 3:', error);
-                return null;
-            }
+            pool = node3;
+            break;
+        default:
+            console.error('Invalid node number:', node);
+            return null;
+    }
+    
+    try {
+        const nodePromise = pool.getConnection();
+        const connection = await Promise.race([
+            nodePromise,
+            new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("Connection timeout")), 10000)
+            ),
+        ]);
+        return connection;
+    } catch (err) {
+        console.error(`Error occurred while getting connection from node ${node}:`, err);
+        return null;
     }
 };
+
 
 module.exports = {connectNode};
 

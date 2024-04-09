@@ -12,24 +12,20 @@ const fetchData = async (query) => {
     try {
         console.log('Connecting to central node and nodes 2 and 3...');
 
-        const centralNodePromise = connectNode(1);
-        const node2Promise = connectNode(2);
-        const node3Promise = connectNode(3);
-
-        const [centralNodeConnection, Node2Connection, Node3Connection] = await Promise.all([
-            centralNodePromise,
-            node2Promise,
-            node3Promise
-        ]);
-
+        const centralNodeConnection = await connectNode(1);
+        const Node2Connection = await connectNode(2);
+        const Node3Connection = await connectNode(3);
+        
         // Check if central node connection succeeded
         if (centralNodeConnection) {
             try {
+                console.log('connected to central node');
                 const [rows] = await centralNodeConnection.query(query);
                     if (rows.length === 0) {
                         console.log("No records found.");
                         return null;
                     } else {
+                        console.log('queried to central node!');
                         return rows;
                     }
               } catch (err) {
@@ -46,11 +42,13 @@ const fetchData = async (query) => {
             
                 if (Node2Connection) {
                     const result = await Node2Connection.query(query);
+                    console.log('queried to node 2!');
                     node2rows = result ? result[0] : null;
                 }
             
                 if (Node3Connection) {
                     const result = await Node3Connection.query(query);
+                    console.log('queried to node 3!');
                     node3rows = result ? result[0] : null;
                 }
             
@@ -84,7 +82,6 @@ const fetchData = async (query) => {
         console.error("Failed to connect to nodes:", err);
     }
 };
-
 
     /**
      * 
