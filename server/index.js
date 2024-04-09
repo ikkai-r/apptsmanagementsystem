@@ -201,6 +201,7 @@ app.post("/api/insert", async (req, res) => {
         const clinicid = req.body.clinicid;
         const regionname = req.body.regionname;
         const status = req.body.status;
+        const type = req.body.type;
         const timequeued = new Date(req.body.timequeued)
         const queuedate = new Date(req.body.queuedate)
         const starttime = new Date(req.body.starttime)
