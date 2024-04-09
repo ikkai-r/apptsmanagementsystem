@@ -29,7 +29,7 @@ const syncFuncs = {
                     const { apptid, pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type } = appointment;
 
                     if(typeQuery === 'INSERT') {
-
+                        
                         const query = {
                             statement: "INSERT INTO appointments (pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid) VALUES (?,?,?,?,?,?,?,?,?,?,?);",
                             value: [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid],
@@ -98,6 +98,9 @@ const syncFuncs = {
                 node1_2logs = await getLogsWithCondition(1, ['node = ? AND timestamp > ? AND commit = ?', 2, node2Time, 1]);
 
             }
+            if (node1_2logs instanceof Error)
+                throw Error("Node 2: Something went wrong in getting logs of Node 1.");
+
                  //sync log to node 2 by applying it
                 if(node1_2logs) {
                     for (const log of node1_2logs) {
@@ -183,6 +186,9 @@ const syncFuncs = {
                 // get node1 logs later than the date
                 node1_3logs = await getLogsWithCondition(1, ['node = ? AND timestamp > ? AND commit = ?', 3, node3Time, 1]);
             }
+
+            if (node1_3logs instanceof Error)
+                throw Error("Node 3: Something went wrong in getting logs of Node 1.");
 
             // sync log to node 3 by applying it
             if(node1_3logs) {
