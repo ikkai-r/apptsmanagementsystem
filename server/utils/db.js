@@ -62,7 +62,6 @@ const dbFuncs = {
 
   makeTransactionWithSleep: async(node, nodeNum, query, id) => {
       let [rows] = [[{}]];
-
       try {
         await node.beginTransaction();
 

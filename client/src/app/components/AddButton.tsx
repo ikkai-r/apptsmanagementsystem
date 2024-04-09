@@ -14,6 +14,8 @@ export default function AddButton() {
     const [clinicID, setClinicid] = useState('');
     const [regionName, setRegionName] = useState('');
     const [statusState, setStatusState] = useState('');
+    const [typeState, setTypeState] = useState('');
+
 
 
     async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -86,6 +88,14 @@ export default function AddButton() {
                               <option value="Serving">Serving</option>
                               <option value="Cancel">Cancel</option>
                               <option value="Skip">Skip</option>
+                            </select>
+                        </div>
+
+                        <div className="col-span-6">
+                            <label htmlFor="type" className="block mb-2 text-sm font-medium text-gray-900">Type</label>
+                            <select id="type" name="type" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" onChange={(e) => setTypeState(e.target.value)}  required>
+                              <option value="Consultation">Consultation</option>
+                              <option value="Inpatient">Inpatient</option>
                             </select>
                         </div>
                         <div className="col-span-6">
