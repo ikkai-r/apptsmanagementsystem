@@ -35,6 +35,8 @@ async function case2(id){
         await console.log(isolationLevel + ": ");
         await updateAndSelectCase(id, node1, node2, isolationLevel, newStatus);
     }
+    node1.release();
+    node2.release();
 }
 
 async function updateAndSelectCase(id, node1, node2, isolationLevel, newStatus){

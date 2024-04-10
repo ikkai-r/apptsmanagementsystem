@@ -23,6 +23,8 @@ async function case1(id){
         await console.log(isolationLevel + ": ");
         await select2AppointmentsCase(id, node1, node2, isolationLevel);
     }
+    node1.release();
+    node2.release();
 }
 
 // Node 1 and Node 2 SELECT statements
