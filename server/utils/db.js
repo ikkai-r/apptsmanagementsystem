@@ -14,6 +14,7 @@ const dbFuncs = {
         try {
             if (connectedNode) {
                 const [rows] = await connectedNode.query("SELECT * FROM logs;");
+                connectedNode.release();
                 return rows;
             } else {
                 console.log("Node " + node + " is down");
@@ -35,6 +36,7 @@ const dbFuncs = {
                 }
 
                 const [rows] = await connectedNode.query(queryOrig, query.slice(1));
+                connectedNode.release();
                 return rows;
             } else {
                 console.log("Node " + node + " is down");
@@ -50,6 +52,7 @@ const dbFuncs = {
         try {
             if (connectedNode) {
                 const [rows] = await connectedNode.query("SELECT * FROM logs ORDER BY id DESC LIMIT 1;");
+                connectedNode.release();
                 return rows;
             } else {
                 console.log("Node " + node + " is down");

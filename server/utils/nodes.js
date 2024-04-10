@@ -9,6 +9,10 @@ const node1 = mysql.createPool({
     user: process.env.USERNAME1,
     password: process.env.PASSWORD1,
     database: process.env.DATABASE,
+    waitForConnections: true, 
+    connectionLimit: 0,
+    queueLimit: 0, 
+    idleTimeout: 60000,
 }).promise();
 
 const node2 = mysql.createPool({
