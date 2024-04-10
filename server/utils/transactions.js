@@ -53,7 +53,7 @@ const transactionFunc =  {
     } 
   }, 
 
-  performLogTransaction: async (node, query, apptid) => {
+  performLogTransaction: async (node, query, nodeFrom, apptid) => {
     const nodeConnection = await connectNode(node);
     await setIsolationLevel(nodeConnection, "READ UNCOMMITTED");
 
@@ -67,7 +67,7 @@ const transactionFunc =  {
             } else {
                 nodeInvolved = 3;
             }
-            return await makeTransactionWithSleep(nodeConnection, nodeInvolved, query, node, apptid);
+            return await makeTransactionWithSleep(nodeConnection, nodeInvolved, query, nodeFrom, apptid);
         } catch (err) {
             console.log(err);
         } finally {

@@ -10,6 +10,7 @@ const {replicateData} = require('./replication.js');
 
 const fetchData = async (query) => {
     try {
+
         console.log('Connecting to central node and nodes 2 and 3...');
 
         const centralNodeConnection = await connectNode(1);
@@ -291,5 +292,7 @@ app.post("/api/delete", async (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
-    setInterval(replicateData, 1000);
+    setInterval(() => {
+        replicateData();
+    }, 1000);
 })

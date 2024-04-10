@@ -157,8 +157,6 @@ const syncFuncs = {
             // get central node latest log
             const centralNodeLatestLog = await getLatestLog(1);
 
-            // if thereis no logs
-
             const node2Connection = await connectNode(2);
             const node3Connection = await connectNode(3);
     
@@ -169,12 +167,13 @@ const syncFuncs = {
     
             if(node2Connection) {
 
+                // if there is no logs
                 if (centralNodeLatestLog.length === 0) {
                     node2logs = await getLogs(2);
                 } else {
                     centralNodeTime = centralNodeLatestLog[0].timestamp;
                     // get node2 logs later than the date and those that are not from node 1
-                    node2logs = await getLogsWithCondition(2, ['timestamp > ? AND commit = ? AND node_from != ?', centralNodeTime, 1, 1]);
+                    node2logs = await getLogsWithCondition(2, ['timestamp > ? AND commit = ? AND node_from != ? AND node != ?', centralNodeTime, 1, 1, 1]);
                 }
             } else {
                 console.log('Node 2 is down');
@@ -188,7 +187,7 @@ const syncFuncs = {
                     centralNodeTime = centralNodeLatestLog[0].timestamp;
 
                     // get node3 logs later than the date and those that are not from node 1
-                    node3logs = await getLogsWithCondition(3, ['timestamp > ? AND commit = ? AND node_from != ?', centralNodeTime, 1, 1]);
+                    node3logs = await getLogsWithCondition(3, ['timestamp > ? AND commit = ? AND node_from != ? AND node != ?', centralNodeTime, 1, 1, 1]);
                 }
             } else {
                     console.log('Node 3 is down');
@@ -235,7 +234,7 @@ const syncFuncs = {
                                     type: "INSERT",
                                 }
     
-                                const result = await performLogTransaction(1, query, apptid);
+                                const result = await performLogTransaction(1, query, 1, apptid);
                                 if(result instanceof Error) {
                                     console.log('Node 1 did not succeed in replicating');
                                     return false;
@@ -253,7 +252,7 @@ const syncFuncs = {
                                 type: "UPDATE",
                             }
     
-                            const result = await performLogTransaction(1, query, apptid);
+                            const result = await performLogTransaction(1, query, 1, apptid);
                             if(result instanceof Error) {
                                 console.log('Node 1 did not succeed in replicating');
                                 return false;
@@ -274,7 +273,7 @@ const syncFuncs = {
                                     type: "queryType",
                                 };  
     
-                                const result = await performLogTransaction(1, query, apptid);
+                                const result = await performLogTransaction(1, query, 1, apptid);
                                 if(result instanceof Error) {
                                     console.log('Node 1 did not succeed in replicating');
                                     return false;
@@ -329,8 +328,6 @@ const syncFuncs = {
 
                     //if node is not empty
                     const nodeTime = nodeLatestLog[0].timestamp;
-
-                    console.log(node);
 
                     // get node1 logs later than the date
                     nodelogs_check = await getLogsWithCondition(1, ['node = ? AND timestamp > ? AND commit = ? AND node_from != ?', node, nodeTime, 1, node]);
@@ -513,7 +510,7 @@ const syncFuncs = {
                                     value: [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid],
                                     type: "INSERT",
                                     }
-                                    const result = await performLogTransaction(node, query, apptid);
+                                    const result = await performLogTransaction(node, query, 1, apptid);
                                     if(result instanceof Error) {
                                         console.log('Node ' + node + ' did not succeed in replicating');
                                         return false;
@@ -530,7 +527,7 @@ const syncFuncs = {
                                     type: "UPDATE",
                                 }
     
-                                const result = await performLogTransaction(node, query, apptid);
+                                const result = await performLogTransaction(node, query, 1, apptid);
                                 if(result instanceof Error) {
                                     console.log('Node ' + node + ' did not succeed in replicating');
                                     return false;
@@ -552,7 +549,7 @@ const syncFuncs = {
                                         type: "queryType",
                                     };  
     
-                                    const result = await performLogTransaction(node, query, apptid);
+                                    const result = await performLogTransaction(node, query, 1, apptid);
                                     if(result instanceof Error) {
                                         console.log('Node ' + node + ' did not succeed in replicating');
                                         return false;
