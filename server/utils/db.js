@@ -143,11 +143,14 @@ const dbFuncs = {
       try {
             if (connectedNode)
                 result = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
+                connectedNode.release();
             return result;
       } catch(error) {
+          connectedNode.release();
           return error;
-      }
-  },
+
+      } 
+  }
     
 };
 
