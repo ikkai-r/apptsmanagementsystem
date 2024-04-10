@@ -51,7 +51,7 @@ const dbFuncs = {
         const connectedNode = await connectNode(node);
         try {
             if (connectedNode) {
-                const [rows] = await connectedNode.query("SELECT * FROM logs ORDER BY id DESC LIMIT 1;");
+                const [rows] = await connectedNode.query("SELECT * FROM logs WHERE commit = 1 ORDER BY id DESC LIMIT 1;");
                 connectedNode.release();
                 return rows;
             } else {
