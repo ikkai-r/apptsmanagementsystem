@@ -63,7 +63,39 @@ const dbFuncs = {
         }
     },
 
-  makeTransactionWithSleep: async(node, nodeNum, query, id) => {
+    makeTransaction: async(node, query, id) => {
+      let [rows] = [[{}]];
+      try {
+        await node.beginTransaction();
+
+        if (query.type === "UPDATE" || query.type === "DELETE") {
+          rows = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
+        } 
+
+        //lock transaction
+        await node.query(
+          "SELECT * FROM appointments WHERE apptid = ? FOR UPDATE;",
+          [id]
+        );
+
+        const [result] = await node.query(query.statement, query.value);
+        rows = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
+
+        node.commit();     
+        node.release();
+        return result;
+      } catch(error) {
+          console.log(error)
+          console.log("Rolled back the data.");
+          console.log(error);
+          node.rollback(node);
+          node.release();
+          return error;
+      }
+
+    },
+
+  makeTransactionWithSleep: async(node, nodeNum, query, nodeFrom, id) => {
       let [rows] = [[{}]];
       try {
         await node.beginTransaction();
@@ -73,8 +105,8 @@ const dbFuncs = {
         } 
         
         await node.query(
-          "INSERT INTO logs (type, record, node, commit) VALUES (?,?,?,?);",
-          [query.type, JSON.stringify(rows[0]), nodeNum, 0],
+          "INSERT INTO logs (type, record, node, node_from, commit) VALUES (?,?,?,?,?);",
+          [query.type, JSON.stringify(rows[0]), nodeNum, nodeFrom, 0],
         );
 
         //lock transaction
@@ -83,16 +115,16 @@ const dbFuncs = {
           [id]
         );
 
-        //execute query
         const [result] = await node.query(query.statement, query.value);
         rows = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
 
-        await node.query(
+        node.commit();     
+
+        await node.query (
           'UPDATE logs SET record = ? , commit = ? WHERE id = (SELECT max_id FROM (SELECT MAX(id) AS max_id FROM logs) AS max_id_table);',
           [JSON.stringify(rows[0]), 1]
       );
 
-        node.commit();
         node.release();
         return result;
       } catch(error) {
