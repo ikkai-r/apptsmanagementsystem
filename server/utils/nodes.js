@@ -21,6 +21,10 @@ const node2 = mysql.createPool({
     user: process.env.USERNAME2,
     password: process.env.PASSWORD2,
     database: process.env.DATABASE,
+    waitForConnections: true, 
+    connectionLimit: 0,
+    queueLimit: 0, 
+    idleTimeout: 60000,
 }).promise();
 
 const node3 = mysql.createPool({
@@ -29,6 +33,10 @@ const node3 = mysql.createPool({
     user: process.env.USERNAME3,
     password: process.env.PASSWORD3,
     database: process.env.DATABASE,
+    waitForConnections: true, 
+    connectionLimit: 0,
+    queueLimit: 0, 
+    idleTimeout: 60000,
 }).promise();
 
 const connectNode = async (node) => {
