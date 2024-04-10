@@ -139,14 +139,10 @@ const dbFuncs = {
     },
     // for sync.js
     selectAppt: async (node, id) => {
-      const connectedNode = await connectNode(node);
       try {
-            if (connectedNode)
-                result = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
-                connectedNode.release();
+              result = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
             return result;
       } catch(error) {
-          connectedNode.release();
           return error;
 
       } 
