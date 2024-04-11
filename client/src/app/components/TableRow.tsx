@@ -263,6 +263,7 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
             <div className="flex justify-center gap-4">
               <form id='deleteform' onSubmit={onDelete}>
               <input style={{'display': 'none'}} type="text" name="apptid" id="apptid" className="shadow-sm bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" value={apptid} required/>
+              <input style={{'display': 'none'}} type="text" name="regionname" id="regionname" className="shadow-sm bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" value={regionname} required/>
                 <Button color="failure" type='submit'>
                   {"Yes, I'm sure"}
                 </Button>

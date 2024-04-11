@@ -12,7 +12,6 @@ const node1 = mysql.createPool({
     waitForConnections: true, 
     connectionLimit: 0,
     queueLimit: 0, 
-    idleTimeout: 60000,
 }).promise();
 
 const node2 = mysql.createPool({
@@ -24,7 +23,6 @@ const node2 = mysql.createPool({
     waitForConnections: true, 
     connectionLimit: 0,
     queueLimit: 0, 
-    idleTimeout: 60000,
 }).promise();
 
 const node3 = mysql.createPool({
@@ -36,7 +34,6 @@ const node3 = mysql.createPool({
     waitForConnections: true, 
     connectionLimit: 0,
     queueLimit: 0, 
-    idleTimeout: 60000,
 }).promise();
 
 const connectNode = async (node) => {
