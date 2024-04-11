@@ -10,7 +10,7 @@ async function replicateCentralNode() {
     try {
       const result = await syncCentralNode();
       if(result) {
-        console.log('Replication for central node has finished.');
+        // console.log('Replication for central node has finished.');
         isCentralNodeReplicating = false;
       }
     } catch (error) {
@@ -25,7 +25,7 @@ async function replicateOtherNodes() {
     try {
       const result = await syncOtherNodes(2);
       if(result) {
-        console.log('Replication for node 2 has finished.');
+        // console.log('Replication for node 2 has finished.');
         isNode2Replicating = false;
       }
     } catch (error) {
@@ -38,7 +38,7 @@ async function replicateOtherNodes() {
     try {
       const result = await syncOtherNodes(3);
       if(result) {
-        console.log('Replication for node 3 has finished.');
+        // console.log('Replication for node 3 has finished.');
         isNode3Replicating = false;
       }
     } catch (error) {
