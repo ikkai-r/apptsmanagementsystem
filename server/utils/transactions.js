@@ -50,6 +50,15 @@ const transactionFunc =  {
             if (type === 'INSERT') {
                 insertAppointment(appointment, nodeConnection);
             } else if (type === 'UPDATE') {
+
+                //TODO: check region name
+                //if regionname included in luzon, and node involved is != 2:
+                // insert to node 3 and delete in node 2
+
+                // else if regionname not included in luzon, and node involved is != 3:
+                // insert to node 2 and delete in node 3
+
+                //else update
                 updateAppointment(appointment, nodeConnection);
             } else {
                 deleteAppointment(appointment, nodeConnection);
