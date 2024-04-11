@@ -45,24 +45,41 @@ const dbFuncs = {
 
     try {
       await node.beginTransaction();
+      let result = null;
 
-      await node.query(
+      const [rows] = await node.query(
         "SELECT * FROM appointments WHERE apptid = ? FOR UPDATE;",
         [appointment.apptid]
       );
 
-      const [result] = await node.query("UPDATE appointments SET pxid = ?, clinicid = ?, regionname = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ?, type = ? WHERE apptid = ?", [
-        appointment.pxid,
-        appointment.clinicid,
-        appointment.regionname,
-        appointment.status,
-        timequeued,
-        queuedate,
-        starttime,
-        endtime,
-        appointment.type,
-        appointment.apptid
-    ]);
+      if (rows.length > 0) {
+        [result] = await node.query("UPDATE appointments SET pxid = ?, clinicid = ?, regionname = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ?, type = ? WHERE apptid = ?", [
+          appointment.pxid,
+          appointment.clinicid,
+          appointment.regionname,
+          appointment.status,
+          timequeued,
+          queuedate,
+          starttime,
+          endtime,
+          appointment.type,
+          appointment.apptid
+      ]);
+      } else {
+        if(node.config.port == 20155) {
+          //it belonged in the luzon node before 
+          // delete from node 2
+          dbFuncs.deleteAppointment(appointment, await connectNode(2));
+          // insert to node 3
+          dbFuncs.insertAppointment(appointment, await connectNode(3));
+        } else if(node.config.port == 20154) {
+          //it belonged in the visayas/mindanao node before 
+            // delete from node 2
+            dbFuncs.deleteAppointment(appointment, await connectNode(2));
+            // insert to node 3
+            dbFuncs.insertAppointment(appointment, await connectNode(3));
+        }
+      }
 
       await node.commit();
       await node.release();
@@ -73,7 +90,7 @@ const dbFuncs = {
       console.log("Rolled back the data.");
       await node.rollback(node);
       await node.release();
-    }
+    } 
   },
 
   deleteAppointment: async (appointment, node) => {
