@@ -2,11 +2,15 @@ import React, { FormEvent, useState } from 'react';
 import { Modal, Button } from "flowbite-react";
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
+import { HiOutlineExclamationCircle } from "react-icons/hi";
+
 import dayjs from 'dayjs';
 
 export default function AddButton() {
 
     const [openModal, setOpenModal] = useState(false);
+    const [errorModal, setErrorModal] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
     const [selectedDate, setSelectedDate] = useState(null);
     const [successUpdModal, setSuccessUpdModal] = useState(false);
     const [apptID, setApptid] = useState('');
@@ -38,7 +42,7 @@ export default function AddButton() {
               },
               body: JSON.stringify(serializedData)
             })
-            .then(response => {
+            .then(async response => {
               if(response.status == 200) {
                 setOpenModal(false);
                 
@@ -46,8 +50,23 @@ export default function AddButton() {
   
                 setTimeout(() => {
                   setSuccessUpdModal(false);
-                  window.location.reload(); // Reload the page
+                  window.location.reload();
                 }, 1000);
+              } else if (response.status == 404 || response.status == 500) {
+
+                const responseBody = await response.json();
+                const errorMessage = responseBody.message;
+
+                setOpenModal(false);
+
+                setErrorMessage(errorMessage);
+                setErrorModal(true);
+
+                setTimeout(() => {
+                  setErrorModal(false);
+                  window.location.reload();
+                }, 1000);
+
               }
   
               return response.json()
@@ -171,6 +190,18 @@ export default function AddButton() {
             <IoMdCheckmarkCircleOutline className="mx-auto mb-4 h-14 w-14 text-green-500" />
             <h3 className="mb-5 text-lg font-normal text-gray-500">
               Inserted successfully!
+            </h3>
+          </div>
+        </Modal.Body>
+      </Modal>
+
+      <Modal show={errorModal} size="md" onClose={() => setErrorModal(false)} popup>
+        <Modal.Header className="bg-white" />
+        <Modal.Body className="bg-white">
+          <div className="text-center">
+            <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-red-500" />
+            <h3 className="mb-5 text-lg font-normal text-gray-500">
+              {errorMessage} Please try again.
             </h3>
           </div>
         </Modal.Body>

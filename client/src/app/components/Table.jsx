@@ -1,15 +1,17 @@
-import React, { useEffect, useState }from 'react'
-import TableRow from './TableRow'
+import React, { useEffect, useState }from 'react';
+import TableRow from './TableRow';
+import {Spinner} from 'flowbite-react';
 
 export default function Table() {
 
     const [appointments, setAppointments] = useState([]);
-
+    const [loading, setLoading] = useState(true);
     
     const fetchData = () => {
         fetch("http://localhost:5000/api/view")
           .then(res => res.json())
           .then(data => {
+            setLoading(false);
             setAppointments(data);
           });
       };
@@ -18,12 +20,23 @@ export default function Table() {
         fetchData();
     }, []);
 
-      const handleUpdate = () => {
-        fetchData();
+      const handleUpdate = async () => {
+        window.location.reload();
       };
 
   return (
-    <table className="w-full text-sm text-left rtl:text-right text-gray-500  shadow-md">
+
+    <>
+        {loading ? 
+        
+        <div className='w-full flex flex-col justify-center items-center p-4'>
+            <Spinner aria-label="Extra large spinner example" size="xl" />
+            <p className='text-2xl mt-4'>Fetching data appointments...</p>
+            </div>
+        : (
+
+
+            <table className="w-full text-sm text-left rtl:text-right text-gray-500  shadow-md">
                 <thead className="text-xs text-gray-700 uppercase bg-gray-50  ">
                     <tr>
                         <th scope="col" className="px-3 py-3">
@@ -81,5 +94,13 @@ export default function Table() {
                             
                 </tbody>
             </table>
+
+
+
+        )}
+       
+    
+    </>
+    
   )
 }

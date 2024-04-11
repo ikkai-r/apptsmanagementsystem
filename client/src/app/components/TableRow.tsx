@@ -12,7 +12,7 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
     const [openModal, setOpenModal] = useState(false);
     const [sureModal, setSureModal] = useState(false);
     const [errorModal, setErrorModal] = useState(false);
-    const [errorMessage, setErrorMessage] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
     const [successDelModal, setSuccessDelModal] = useState(false);
     const [successUpdModal, setSuccessUpdModal] = useState(false);
     const [selectedDate, setSelectedDate] = useState(null);
@@ -48,13 +48,13 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
           })
           .then(async response => {
             if(response.status == 200) {
-              onUpdate();
               setOpenModal(false);
               
               setSuccessUpdModal(true);
 
               setTimeout(() => {
                 setSuccessUpdModal(false);
+                onUpdate();
               }, 1000);
           } else if (response.status == 404 || response.status == 500) {
 
@@ -67,6 +67,7 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
 
               setTimeout(() => {
                 setErrorModal(false);
+                onUpdate();
               }, 1000);
           }
 
@@ -121,19 +122,19 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
         
         <th scope="row" className="px-3 py-4 font-medium text-gray-900 whitespace-nowrap">
         <Tooltip content={apptid}>
-         {apptid.substring(0, 25)}...
+        {apptid.length > 25 ? (apptid.substring(0, 25) + '...') : apptid}
         </Tooltip>
         </th>   
 
         <td className="px-3 py-4 text-gray-900">
         <Tooltip content={pxid}>
-         {pxid.substring(0, 25)}...  
+        {pxid.length > 25 ? (pxid.substring(0, 25) + '...') : pxid}
         </Tooltip>   
         </td> 
 
         <td className="px-3 py-4 text-gray-900">
         <Tooltip content={clinicid}>
-         {clinicid.substring(0, 25)}...  
+        {clinicid.length > 25 ? (clinicid.substring(0, 25) + '...') : clinicid}
         </Tooltip>   
         </td>
 
