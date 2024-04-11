@@ -180,8 +180,8 @@ app.post("/api/insert", async (req, res) => {
       res.status(404).json({ message: "Record not found." });
     }
   } catch (error) {
-    console.error("Error updating data:", error);
-    res.status(500).json({ message: "Error updating data." });
+    console.error("Error inserting data:", error);
+    res.status(500).json({ message: "Error inserting data." });
   }
 });
 

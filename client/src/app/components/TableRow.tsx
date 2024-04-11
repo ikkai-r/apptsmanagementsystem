@@ -5,11 +5,14 @@ import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 
 import dayjs from 'dayjs';
+import { error } from 'console';
 
 
 export default function TableRow({ apptid, pxid, clinicid, regionname, timequeued, queuedate, starttime, endtime, status, apptType, onUpdate}) {
     const [openModal, setOpenModal] = useState(false);
     const [sureModal, setSureModal] = useState(false);
+    const [errorModal, setErrorModal] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(false);
     const [successDelModal, setSuccessDelModal] = useState(false);
     const [successUpdModal, setSuccessUpdModal] = useState(false);
     const [selectedDate, setSelectedDate] = useState(null);
@@ -43,7 +46,7 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
             },
             body: JSON.stringify(serializedData)
           })
-          .then(response => {
+          .then(async response => {
             if(response.status == 200) {
               onUpdate();
               setOpenModal(false);
@@ -53,7 +56,19 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
               setTimeout(() => {
                 setSuccessUpdModal(false);
               }, 1000);
-            }
+          } else if (response.status == 404 || response.status == 500) {
+
+              const responseBody = await response.json();
+              const errorMessage = responseBody.message;
+              setOpenModal(false);
+
+              setErrorMessage(errorMessage);
+              setErrorModal(true);
+
+              setTimeout(() => {
+                setErrorModal(false);
+              }, 1000);
+          }
 
             return response.json()
           })
@@ -258,7 +273,7 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
           <div className="text-center">
             <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400" />
             <h3 className="mb-5 text-lg font-normal text-gray-500">
-              Are you sure you want to delete this product?
+              Are you sure you want to delete this appointment?
             </h3>
             <div className="flex justify-center gap-4">
               <form id='deleteform' onSubmit={onDelete}>
@@ -283,6 +298,18 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
             <IoMdCheckmarkCircleOutline className="mx-auto mb-4 h-14 w-14 text-green-500" />
             <h3 className="mb-5 text-lg font-normal text-gray-500">
               Deleted successfully!
+            </h3>
+          </div>
+        </Modal.Body>
+      </Modal>
+
+      <Modal show={errorModal} size="md" onClose={() => setErrorModal(false)} popup>
+        <Modal.Header className="bg-white" />
+        <Modal.Body className="bg-white">
+          <div className="text-center">
+            <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-red-500" />
+            <h3 className="mb-5 text-lg font-normal text-gray-500">
+              {errorMessage} Please try again.
             </h3>
           </div>
         </Modal.Body>
