@@ -76,9 +76,8 @@ const transactionFunc =  {
     return true;
   }, 
 
-  performTransactionTest: async (appointment, type, nodeConnection) => {
-    const centralNodeConnection = await connectNode(1);
-    let nodeInvolved = 1;
+  performTransactionTest: async (appointment, type, nodeConnection, centralNodeConnection, nodeNum) => {
+    let nodeInvolved = nodeNum;
     let [rows] = [];
 
     try {
@@ -115,6 +114,12 @@ const transactionFunc =  {
                 } else if (type === 'DELETE') {
                     await deleteAppointment(appointment, nodeConnection);
                     await new Promise(r => setTimeout(r, 2000));
+                } 
+
+                try {
+                    rows = await searchAppointment(appointment, nodeConnection);
+                } catch (err) {
+                    console.log("Perform transaction selecting appointment", err);
                 }
             } catch (err) {
                 console.log('Perform transaction: ', err);
@@ -122,6 +127,7 @@ const transactionFunc =  {
         } else if (!nodeConnection && centralNodeConnection) {
             try {
                 await insertLog(centralNodeConnection, appointment, type, nodeInvolved);
+                console.log("executed")
             } catch (err) {
                 console.log('Perform transaction inserting log: ', err);
             } 
@@ -129,12 +135,6 @@ const transactionFunc =  {
             console.log('Nodes are down.');
         }
         
-        try {
-            rows = await searchAppointment(appointment, nodeConnection);
-        } catch (err) {
-            console.log("Perform transaction selecting appointment", err);
-        }
-
         if (nodeConnection) nodeConnection.release();
         if (centralNodeConnection) centralNodeConnection.release();
         
