@@ -1,101 +1,103 @@
 const {connectNode} = require('./nodes.js');
-const {setIsolationLevel, makeTransactionWithSleep, makeTransaction} = require('./db.js');
+const {setIsolationLevel, insertAppointment, updateAppointment, deleteAppointment, insertLog} = require('./db.js');
 const luzon_regions = ['National Capital Region (NCR)', 'Ilocos Region (I)', 'Cagayan Valley (II)', 'Central Luzon (III)', 'CALABARZON (IV-A)', 'MIMAROPA (IV-B)', 'Cordillera Administrative Region (CAR)']
 
 const transactionFunc =  {
-    performTransaction: async (query, apptid) => {
+    performTransaction: async (appointment, type) => {
     const centralNodeConnection = await connectNode(1);
-    await setIsolationLevel(centralNodeConnection, "Read Uncommitted");
-  
+    let nodeConnection = null;
+    let nodeInvolved = 1;
+
+    //TODO: Not sure if needed
+    //await setIsolationLevel(centralNodeConnection, "READ UNCOMMITTED");
+    
+    const regionname = appointment.regionname;
+
+    if(luzon_regions.includes(regionname)) {
+        nodeConnection = await connectNode(2);
+        nodeInvolved = 2;
+    } else {
+        nodeConnection = await connectNode(3);
+        nodeInvolved = 3;
+    }
+    
     //master working
     if (centralNodeConnection) {
         try {
-            const regionname = query.value[2];
-            let nodeInvolved = 1;
-
-            if(luzon_regions.includes(regionname)) {
-                nodeInvolved = 2;
+            if (type === 'INSERT') {
+                insertAppointment(appointment, centralNodeConnection);
+            } else if (type === 'UPDATE') {
+                updateAppointment(appointment, centralNodeConnection);
             } else {
-                nodeInvolved = 3;
+                deleteAppointment(appointment, centralNodeConnection);
             }
-            return await makeTransactionWithSleep(centralNodeConnection, nodeInvolved, query, 1, apptid);
         } catch (err) {
+            console.log('Perform transaction log: ', err);
             console.log(err);
-        } finally {
-            centralNodeConnection.release();
         }
-  
+    } else if (!centralNodeConnection && nodeConnection) {
+        try {
+            insertLog(nodeConnection, appointment, type, 1);
+        } catch (err) {
+            console.log('Perform transaction inserting log: ', err);
+        } 
     } else {
-        //if not perform transaction in nodes 2 or 3
-        const Node2Connection = await connectNode(2);
-        const Node3Connection = await connectNode(3);
-        const regionname = query.value[2];
+        console.log('Nodes are down.');
+    }
 
-        if (luzon_regions.includes(regionname)) {
-            try {
-                // await setIsolationLevel(Node2Connection);
-                return await makeTransactionWithSleep(Node2Connection, 2, query, 2, apptid);
-            } catch(err) {
-                console.log(err);
-            } finally {
-                Node2Connection.release();
+    if (nodeConnection) {
+        try {
+            if (type === 'INSERT') {
+                insertAppointment(appointment, nodeConnection);
+            } else if (type === 'UPDATE') {
+                updateAppointment(appointment, nodeConnection);
+            } else {
+                deleteAppointment(appointment, nodeConnection);
             }
-        } else {
-            try {
-                // await setIsolationLevel(Node3Connection);
-                return await makeTransactionWithSleep(Node3Connection, 3, query, 3, apptid);
-            } catch(err) {
-                console.log(err);
-            } finally {
-                Node3Connection.release();
+        } catch (err) {
+            console.log('Perform transaction: ', err);
+        } 
+    } else if (!nodeConnection && centralNodeConnection) {
+        try {
+            insertLog(centralNodeConnection, appointment, type, nodeInvolved);
+        } catch (err) {
+            console.log('Perform transaction inserting log: ', err);
+        } 
+    } else {
+        console.log('Nodes are down.');
+    }
+
+    if (nodeConnection) nodeConnection.release();
+    if (centralNodeConnection) centralNodeConnection.release();
+    
+    return true;
+  }, 
+  
+  performTransactionFromLog: async (appointment, type, nodeConnection) => {
+
+    //TODO: Not sure if needed
+    //await setIsolationLevel(centralNodeConnection, "READ UNCOMMITTED");
+    
+    //master working
+    if (nodeConnection) {
+        try {
+            if (type === 'INSERT') {
+                insertAppointment(appointment, nodeConnection);
+            } else if (type === 'UPDATE') {
+                updateAppointment(appointment, nodeConnection);
+            } else {
+                deleteAppointment(appointment, nodeConnection);
             }
-        }   
-    } 
+        } catch (err) {
+            console.log('Log recovery failed: ', err);
+        }
+    } else {
+        console.log('Node is down');
+    }
+
+    if (nodeConnection) nodeConnection.release();
+    
   }, 
 
-  performLogTransaction: async (node, query, nodeFrom, apptid) => {
-    const nodeConnection = await connectNode(node);
-    // await setIsolationLevel(nodeConnection);
-
-    if (nodeConnection) {
-        try {
-            const regionname = query.value[2];
-            let nodeInvolved = 1;
-
-            if(luzon_regions.includes(regionname)) {
-                nodeInvolved = 2;
-            } else {
-                nodeInvolved = 3;
-            }
-            return await makeTransactionWithSleep(nodeConnection, nodeInvolved, query, nodeFrom, apptid);
-        } catch (err) {
-            console.log(err);
-        } finally {
-            nodeConnection.release();
-        }
-    } else {
-        console.log('Node ' + node + 'is down');
-    }
-
-  },
-
-  performTransactionLogUpdate: async (node, query, apptid) => {
-    const nodeConnection = await connectNode(node);
-    // await setIsolationLevel(nodeConnection);
-
-    if (nodeConnection) {
-        try {
-            return await makeTransaction(nodeConnection, query, apptid);
-        } catch (err) {
-            console.log(err);
-        } finally {
-            nodeConnection.release();
-        }
-    } else {
-        console.log('Node ' + node + 'is down');
-    }
-
-  }
-}
-
+};
 module.exports = transactionFunc;

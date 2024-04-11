@@ -151,7 +151,7 @@ app.post("/api/submitDevOptions", async (req, res) => {
 
         const result = await performTransaction(query, apptid);
 
-         if (result.affectedRows > 0) {
+         if (result) {
             console.log("Dev Options: Update Success");
         } else {
             console.log("Dev Options: Update Error");
@@ -169,7 +169,7 @@ app.post("/api/submitDevOptions", async (req, res) => {
         };  
 
         const result = await performTransaction(query, apptid);
-         if (result.affectedRows > 0) {
+         if (result) {
             console.log("Dev Options: Delete Success");
         } else {
             console.log("Dev Options: Delete Error");
@@ -202,28 +202,17 @@ app.post("/api/submitDevOptions", async (req, res) => {
 
 app.post("/api/insert", async (req, res) => {
     try {
-        const apptid = req.body.apptid;
-        const pxid = req.body.pxid;
-        const clinicid = req.body.clinicid;
-        const regionname = req.body.regionname;
-        const status = req.body.status;
-        const type = req.body.type;
-        const timequeued = new Date(req.body.timequeued)
-        const queuedate = new Date(req.body.queuedate)
-        const starttime = new Date(req.body.starttime)
-        const endtime = new Date(req.body.endtime)
-        const query = {
-            statement: "INSERT INTO appointments (pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid) VALUES (?,?,?,?,?,?,?,?,?,?);",
-            value: [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid],
-            type: "INSERT",
-        }
 
-        const result = await performTransaction(query, apptid);
-        if (result.affectedRows > 0) {
-            res.status(200).json({ message: "Data updated successfully." });
+        const appointment = req.body;
+        const result = await performTransaction(appointment, 'INSERT');
+
+        if (result) {
+            console.log('Data inserted successfully');
+            res.status(200).json({ message: "Data inserted successfully." });
         } else {
             res.status(404).json({ message: "Record not found." });
         }
+
     } catch (error) {
         console.error("Error updating data:", error);
         res.status(500).json({ message: "Error updating data." });
@@ -233,25 +222,11 @@ app.post("/api/insert", async (req, res) => {
 
 app.post("/api/update", async (req, res) => {
     try {
-        const apptid = req.body.apptid;
-        const pxid = req.body.pxid;
-        const clinicid = req.body.clinicid;
-        const regionname = req.body.regionname;
-        const status = req.body.status;
-        const timequeued = new Date(req.body.timequeued)
-        const queuedate = new Date(req.body.queuedate)
-        const starttime = new Date(req.body.starttime)
-        const endtime = new Date(req.body.endtime)
-        const type = req.body.type;
+        const appointment = req.body;
+        const result = await performTransaction(appointment, 'UPDATE');
 
-        const query = {
-            statement: "UPDATE appointments SET pxid = ?, clinicid = ?, regionname = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ?, type = ? WHERE apptid = ?",
-            value: [pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid],
-            type: "UPDATE",
-        }
-
-        const result = await performTransaction(query, apptid);
-        if (result.affectedRows > 0) {
+        if (result) {
+            console.log('Data updated successfully');
             res.status(200).json({ message: "Data updated successfully." });
         } else {
             res.status(404).json({ message: "Record not found." });
@@ -264,16 +239,11 @@ app.post("/api/update", async (req, res) => {
 
 app.post("/api/delete", async (req, res) => {
     try {
-        const apptid = req.body.apptid;
-        const query = {
-            statement: "DELETE FROM appointments WHERE apptid = ?",
-            value: [apptid],
-            type: "DELETE",
-        };
-    
-        const result = await performTransaction(query, apptid);
+        const appointment = req.body;
+        const result = await performTransaction(appointment, 'DELETE');
 
-        if (result.affectedRows > 0) {
+        if (result) {
+            console.log('Data deleted successfully');
             res.status(200).json({ message: "Data deleted successfully." });
         } else {
             res.status(404).json({ message: "Record not found." });

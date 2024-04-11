@@ -1,17 +1,159 @@
 const {connectNode} = require('./nodes.js');
- 
+const dayjs = require('dayjs')
+
 const dbFuncs = {
-  setIsolationLevel: async (node, level) => {
+
+  insertAppointment: async (appointment, node) => {
+    const timequeued = appointment.timequeued !== '' ? dayjs(appointment.timequeued).format('YYYY-MM-DD HH:mm:ss') : null;
+    const queuedate = appointment.queuedate !== '' ? dayjs(appointment.queuedate).format('YYYY-MM-DD HH:mm:ss') : null;
+    const starttime = appointment.starttime !== '' ? dayjs(appointment.starttime).format('YYYY-MM-DD HH:mm:ss') : null;
+    const endtime = appointment.endtime !== '' ? dayjs(appointment.endtime).format('YYYY-MM-DD HH:mm:ss') : null;
+
     try {
-      await node.query(`SET GLOBAL TRANSACTION ISOLATION LEVEL ${level};`)
-      console.log(await node.query("SELECT @@global.transaction_ISOLATION;"))
-    } catch (error) {
-      console.log("nagerror")
-      return error;
-    }
+      await node.beginTransaction();
+
+      const [result] = await node.query("INSERT INTO appointments (pxid, clinicid, regionname, status, timequeued, queuedate, starttime, endtime, type, apptid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+        appointment.pxid,
+        appointment.clinicid,
+        appointment.regionname,
+        appointment.status,
+        timequeued,
+        queuedate,
+        starttime,
+        endtime,
+        appointment.type,
+        appointment.apptid
+    ]);
+  
+      await node.commit();
+      await node.release();
+      return result;
+
+    } catch (err) {
+      console.log('Error inserting the data: ', err)
+      console.log("Rolled back the data.");
+      await node.rollback(node);
+      insertLog(node, appointment, 'INSERT', getNodeInvolvedFromPort(node));
+      await node.release();
+    } 
   },
 
-  resetIsolationLevel: async (node) => {
+  updateAppointment: async (appointment, node) => {
+    const timequeued = appointment.timequeued !== '' ? dayjs(appointment.timequeued).format('YYYY-MM-DD HH:mm:ss') : null;
+    const queuedate = appointment.queuedate !== '' ? dayjs(appointment.queuedate).format('YYYY-MM-DD HH:mm:ss') : null;
+    const starttime = appointment.starttime !== '' ? dayjs(appointment.starttime).format('YYYY-MM-DD HH:mm:ss') : null;
+    const endtime = appointment.endtime !== '' ? dayjs(appointment.endtime).format('YYYY-MM-DD HH:mm:ss') : null;
+
+    try {
+      await node.beginTransaction();
+      let result = null;
+
+      const [rows] = await node.query(
+        "SELECT * FROM appointments WHERE apptid = ? FOR UPDATE;",
+        [appointment.apptid]
+      );
+
+      if (rows.length > 0) {
+        [result] = await node.query("UPDATE appointments SET pxid = ?, clinicid = ?, regionname = ?, status = ?, timequeued = ?, queuedate = ?, starttime = ?, endtime = ?, type = ? WHERE apptid = ?", [
+          appointment.pxid,
+          appointment.clinicid,
+          appointment.regionname,
+          appointment.status,
+          timequeued,
+          queuedate,
+          starttime,
+          endtime,
+          appointment.type,
+          appointment.apptid
+      ]);
+      } else {
+        if(node.config.port == 20155) {
+          //it belonged in the luzon node before 
+          // delete from node 2
+          dbFuncs.deleteAppointment(appointment, await connectNode(2));
+          // insert to node 3
+          dbFuncs.insertAppointment(appointment, await connectNode(3));
+        } else if(node.config.port == 20154) {
+          //it belonged in the visayas/mindanao node before 
+            // delete from node 2
+            dbFuncs.deleteAppointment(appointment, await connectNode(2));
+            // insert to node 3
+            dbFuncs.insertAppointment(appointment, await connectNode(3));
+        }
+      }
+
+      await node.commit();
+      await node.release();
+
+      return result;
+    } catch (err) {
+      console.log('Error updating the data: ', err)
+      console.log("Rolled back the data.");
+      await node.rollback(node);
+      insertLog(node, appointment, 'UPDATE', getNodeInvolvedFromPort(node));
+      await node.release();
+    } 
+  },
+
+  deleteAppointment: async (appointment, node) => {
+    console.log('delete this', appointment);
+    //check if central connection works
+    try {
+      await node.beginTransaction();
+
+      const [check] = await node.query(
+        "SELECT * FROM appointments WHERE apptid = ? FOR UPDATE;",
+        [appointment.apptid]
+      );
+
+      console.log(check, 'here');
+
+      const [result] = await node.query("DELETE FROM appointments WHERE apptid = ?", [
+        appointment.apptid
+    ]);
+
+      await node.commit();
+      await node.release();
+
+      return result;
+
+    } catch (err) {
+      console.log('Error deleting the data: ', err)
+      console.log("Rolled back the data.");
+      await node.rollback(node);
+      insertLog(node, appointment, 'DELETE', getNodeInvolvedFromPort(node));
+      await node.release();
+
+    } 
+    
+  },
+
+  insertLog: async (node, appointment, type, nodeInvolved) => {
+    try {
+      await node.beginTransaction();
+
+      const [result] = await node.query("INSERT INTO logs (type, record, node, commit) VALUES (?, ?, ?, ?)", [
+        type,
+        JSON.stringify(appointment),
+        nodeInvolved,
+        0
+    ]);
+
+      await node.commit();
+      await node.release();
+
+      return result;
+
+    } catch (err) {
+      console.log('Error inserting the log: ', err)
+      console.log("Rolled back the data.");
+      await node.rollback(node);
+      await node.release();
+    }
+    
+  },
+
+  setIsolationLevel: async (node, isolationLevel) => {
     try {
       await node.query('SET GLOBAL TRANSACTION ISOLATION LEVEL serializable;')
     } catch (error) {
@@ -19,22 +161,6 @@ const dbFuncs = {
       return error;
     }
   },
-
-    getLogs: async (node) => {
-        const connectedNode = await connectNode(node);
-        try {
-            if (connectedNode) {
-                const [rows] = await connectedNode.query("SELECT * FROM logs;");
-                connectedNode.release();
-                return rows;
-            } else {
-                console.log("Node " + node + " is down");
-                return null;
-            }
-        } catch(error) {
-            return error;
-        }
-    },
 
     getLogsWithCondition: async (node, query) => {
         const connectedNode = await connectNode(node);
@@ -58,111 +184,15 @@ const dbFuncs = {
         }
     },
 
-    getLatestLog: async (node) => {
-        const connectedNode = await connectNode(node);
-        try {
-            if (connectedNode) {
-                const [rows] = await connectedNode.query("SELECT * FROM logs WHERE commit = 1 ORDER BY id DESC LIMIT 1;");
-                connectedNode.release();
-                return rows;
-            } else {
-                console.log("Node " + node + " is down");
-                return null;
-            }
-        } catch(error) {
-            return error;
-        }
-    },
-
-    makeTransaction: async(node, query, id) => {
-      let [rows] = [[{}]];
-      try {
-        await node.beginTransaction();
-
-        if (query.type === "UPDATE" || query.type === "DELETE") {
-          rows = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
-        } 
-
-        //lock transaction
-        await node.query(
-          "SELECT * FROM appointments WHERE apptid = ? FOR UPDATE;",
-          [id]
-        );
-
-        //execute query
-        const result = await node.query(query.statement, query.value);
-
-        rows = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
-
-        node.commit();     
-        node.release();
-        return result;
-      } catch(error) {
-          console.log(error)
-          console.log("Rolled back the data.");
-          node.rollback(node);
-          node.release();
-          return error;
+    getNodeInvolvedFromPort: async (node) => {
+      if (node == 20153) {
+        return 1;
+      } else if (node == 20154) {
+        return 2;
+      } else if (node == 20155) {
+        return 3;
       }
-
     },
-
-  makeTransactionWithSleep: async(node, nodeNum, query, nodeFrom, id) => {
-      let [rows] = [[{}]];
-      try {
-        await node.beginTransaction();
-
-        if (query.type === "UPDATE" || query.type === "DELETE") {
-          rows = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
-        } 
-        
-        await node.query(
-          "INSERT INTO logs (type, record, node, node_from, commit) VALUES (?,?,?,?,?);",
-          [query.type, JSON.stringify(rows[0]), nodeNum, nodeFrom, 0],
-        );
-
-        //lock transaction
-        await node.query(
-          "SELECT * FROM appointments WHERE apptid = ? FOR UPDATE;",
-          [id]
-        );
-        
-        //execute query
-        const [result] = await node.query(query.statement, query.value);
-        await new Promise(r => setTimeout(r, 2000));
-
-
-        rows = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
-
-        node.commit();     
-
-        await node.query (
-          'UPDATE logs SET record = ? , commit = ? WHERE id = (SELECT max_id FROM (SELECT MAX(id) AS max_id FROM logs) AS max_id_table);',
-          [JSON.stringify(rows[0]), 1]
-      );
-
-        node.release();
-        return result;
-      } catch(error) {
-          console.log(error)
-          console.log("Rolled back the data.");
-          console.log(error);
-          node.rollback(node);
-          node.release();
-          return error;
-      }
-
-    },
-    // for sync.js
-    selectAppt: async (node, id) => {
-      try {
-              result = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
-            return result;
-      } catch(error) {
-          return error;
-
-      } 
-  }
     
 };
 
