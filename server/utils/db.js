@@ -1,10 +1,21 @@
 const {connectNode} = require('./nodes.js');
-
+ 
 const dbFuncs = {
-  setIsolationLevel: async (node, isolationLevel) => {
+  setIsolationLevel: async (node, level) => {
     try {
-      await node.query("SET TRANSACTION ISOLATION LEVEL" + isolationLevel);
+      await node.query(`SET GLOBAL TRANSACTION ISOLATION LEVEL ${level};`)
+      console.log(await node.query("SELECT @@global.transaction_ISOLATION;"))
     } catch (error) {
+      console.log("nagerror")
+      return error;
+    }
+  },
+
+  resetIsolationLevel: async (node) => {
+    try {
+      await node.query('SET GLOBAL TRANSACTION ISOLATION LEVEL serializable;')
+    } catch (error) {
+      console.log("nagerror")
       return error;
     }
   },
@@ -78,7 +89,9 @@ const dbFuncs = {
           [id]
         );
 
-        const [result] = await node.query(query.statement, query.value);
+        //execute query
+        const result = await node.query(query.statement, query.value);
+
         rows = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
 
         node.commit();     
@@ -87,7 +100,6 @@ const dbFuncs = {
       } catch(error) {
           console.log(error)
           console.log("Rolled back the data.");
-          console.log(error);
           node.rollback(node);
           node.release();
           return error;
@@ -114,8 +126,12 @@ const dbFuncs = {
           "SELECT * FROM appointments WHERE apptid = ? FOR UPDATE;",
           [id]
         );
-
+        
+        //execute query
         const [result] = await node.query(query.statement, query.value);
+        await new Promise(r => setTimeout(r, 2000));
+
+
         rows = await node.query(`SELECT * FROM appointments WHERE apptid = '${id}';`);
 
         node.commit();     

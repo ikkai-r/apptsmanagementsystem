@@ -5,7 +5,7 @@ const luzon_regions = ['National Capital Region (NCR)', 'Ilocos Region (I)', 'Ca
 const transactionFunc =  {
     performTransaction: async (query, apptid) => {
     const centralNodeConnection = await connectNode(1);
-    await setIsolationLevel(centralNodeConnection, "READ UNCOMMITTED");
+    await setIsolationLevel(centralNodeConnection, "Read Uncommitted");
   
     //master working
     if (centralNodeConnection) {
@@ -33,7 +33,7 @@ const transactionFunc =  {
 
         if (luzon_regions.includes(regionname)) {
             try {
-                await setIsolationLevel(Node2Connection, "READ UNCOMMITTED");
+                // await setIsolationLevel(Node2Connection);
                 return await makeTransactionWithSleep(Node2Connection, 2, query, 2, apptid);
             } catch(err) {
                 console.log(err);
@@ -42,7 +42,7 @@ const transactionFunc =  {
             }
         } else {
             try {
-                await setIsolationLevel(Node3Connection, "READ UNCOMMITTED");
+                // await setIsolationLevel(Node3Connection);
                 return await makeTransactionWithSleep(Node3Connection, 3, query, 3, apptid);
             } catch(err) {
                 console.log(err);
@@ -55,7 +55,7 @@ const transactionFunc =  {
 
   performLogTransaction: async (node, query, nodeFrom, apptid) => {
     const nodeConnection = await connectNode(node);
-    await setIsolationLevel(nodeConnection, "READ UNCOMMITTED");
+    // await setIsolationLevel(nodeConnection);
 
     if (nodeConnection) {
         try {
@@ -81,7 +81,7 @@ const transactionFunc =  {
 
   performTransactionLogUpdate: async (node, query, apptid) => {
     const nodeConnection = await connectNode(node);
-    await setIsolationLevel(nodeConnection, "READ UNCOMMITTED");
+    // await setIsolationLevel(nodeConnection);
 
     if (nodeConnection) {
         try {
