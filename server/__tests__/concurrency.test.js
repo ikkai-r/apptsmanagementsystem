@@ -49,15 +49,14 @@ describe("Concurrency", () => {
     const node1 = await connectNode(1);
     const node2 = await connectNode(2);
 
+    const before = await searchAppointment(appointment, node2);
     //if current data item looks the same as the one to be updated, make the soon to be data item different
-    if (appointment.clinicid === "salamin") {
+    if (before.clinicid === "salamin") {
       appointment.clinicid = "sa dingding nasaan na ang pagibig";
     }
 
-    const before = await searchAppointment(appointment, node2);
-
     const [transactionResult, after] = await Promise.all([
-      performTransactionTest(appointment, "UPDATE", node2),
+      performTransactionTest(appointment, "UPDATE", node2, node1, 2),
       searchAppointment(appointment, node1),
     ]);
 
@@ -70,9 +69,9 @@ describe("Concurrency", () => {
     const node2 = await connectNode(2);
 
     const [t1, t2] = await Promise.all([
-      performTransactionTest(appointment, "UPDATE", node1),
+      performTransactionTest(appointment, "UPDATE", node1, node1, 1),
       new Promise((resolve) => setTimeout(resolve, 500)).then(() =>
-        performTransactionTest(appointment2, "UPDATE", node2)
+        performTransactionTest(appointment2, "UPDATE", node2, node1, 2)
       ),
     ]);
 
