@@ -108,6 +108,7 @@ app.post("/api/submitDevOptions", async (req, res) => {
   /*
     UPDATE appointments SET pxid = 'FDD72B97684AAD92A95C07AD54A1CE16', clinicid = '7522A10DDF6916ABCCF0163B58CA0543', regionname = 'National Capital Region (NCR)', status = 'Skip', type = 'Consulation', WHERE apptid = 'F8EC68CF724828DD7EA19649C051D36A';
     */
+  const centralNode = await connectNode(1);
   const nodeNum = parseInt(req.body.node);
   const node = await connectNode(nodeNum);
   let data;
@@ -131,7 +132,7 @@ app.post("/api/submitDevOptions", async (req, res) => {
           apptid: statement.match(/apptid = '([^']+)'/)[1],
         };
 
-        data = await performTransactionTest(appointment, "UPDATE", node);
+        data = await performTransactionTest(appointment, "UPDATE", node, centralNode, nodeNum);
         if (data) {
           console.log("Dev Options: Update Success");
         } else {
@@ -142,7 +143,7 @@ app.post("/api/submitDevOptions", async (req, res) => {
           apptid: statement.match(/apptid\s*=\s*'([^']+)'/)[1],
         };
 
-        data = await performTransactionTest(appointment, "DELETE", node);
+        data = await performTransactionTest(appointment, "DELETE", node, centralNode, nodeNum);
         if (data) {
           console.log("Dev Options: Delete Success");
         } else {
@@ -152,7 +153,7 @@ app.post("/api/submitDevOptions", async (req, res) => {
         const appointment = {
           apptid: statement.match(/apptid\s*=\s*'([^']+)'/)[1],
         };
-        data = await performTransactionTest(appointment, "SELECT", node);
+        data = await performTransactionTest(appointment, "SELECT", node, centralNode, nodeNum);
       }
 
       if (data) {
