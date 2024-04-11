@@ -46,6 +46,8 @@ const dbFuncs = {
       console.log("Error inserting the data: ", err);
       console.log("Rolled back the data.");
       await node.rollback(node);
+      const nodeInvolved = await dbFuncs.getNodeInvolvedFromPort(node);
+      dbFuncs.insertLog(node, appointment, 'DELETE', nodeInvolved);
       await node.release();
       return err;
     }
@@ -120,6 +122,8 @@ const dbFuncs = {
       console.log("Error updating the data: ", err);
       console.log("Rolled back the data.");
       await node.rollback(node);
+      const nodeInvolved = await dbFuncs.getNodeInvolvedFromPort(node);
+      dbFuncs.insertLog(node, appointment, 'DELETE', nodeInvolved);
       await node.release();
       return err;
     }
@@ -150,9 +154,12 @@ const dbFuncs = {
       console.log("Error deleting the data: ", err);
       console.log("Rolled back the data.");
       await node.rollback(node);
+      const nodeInvolved = await dbFuncs.getNodeInvolvedFromPort(node);
+      dbFuncs.insertLog(node, appointment, 'DELETE', nodeInvolved);
       await node.release();
       return err;
-    }
+
+    } 
   },
 
   searchAppointment: async (appointment, node) => {
@@ -203,8 +210,9 @@ const dbFuncs = {
 
   setIsolationLevel: async (node, isolationLevel) => {
     try {
-      await node.query("SET TRANSACTION ISOLATION LEVEL" + isolationLevel);
+      await node.query('SET GLOBAL TRANSACTION ISOLATION LEVEL serializable;')
     } catch (error) {
+      console.log("nagerror")
       return error;
     }
   },
@@ -219,17 +227,28 @@ const dbFuncs = {
           queryOrig += " WHERE " + query[0];
         }
 
-        const [rows] = await connectedNode.query(queryOrig, query.slice(1));
-        connectedNode.release();
-        return rows;
-      } else {
-        console.log("Node " + node + " is down");
-        return null;
+                const [rows] = await connectedNode.query(queryOrig, query.slice(1));
+                connectedNode.release();
+                return rows;
+            } else {
+                console.log("Node " + node + " is down");
+                return null;
+            }
+        } catch(error) {
+            return error;
+        }
+    },
+
+    getNodeInvolvedFromPort: async (node) => {
+      if (node.config.port == 20153) {
+        return 1;
+      } else if (node.config.port == 20154) {
+        return 2;
+      } else if (node.config.port == 20155) {
+        return 3;
       }
-    } catch (error) {
-      return error;
-    }
-  },
+    },
+    
 };
 
 module.exports = dbFuncs;
