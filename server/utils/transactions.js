@@ -52,8 +52,10 @@ const transactionFunc =  {
                 insertAppointment(appointment, nodeConnection);
             } else if (type === 'UPDATE') {
                 updateAppointment(appointment, nodeConnection);
+                // await new Promise(r => setTimeout(r, 2000));   //for simulating concurrency in the actual table
             } else {
                 deleteAppointment(appointment, nodeConnection);
+                // await new Promise(r => setTimeout(r, 2000));
             }
         } catch (err) {
             console.log('Perform transaction: ', err);
@@ -109,8 +111,10 @@ const transactionFunc =  {
                     await insertAppointment(appointment, nodeConnection);
                 } else if (type === 'UPDATE') {
                     await updateAppointment(appointment, nodeConnection);
+                    await new Promise(r => setTimeout(r, 2000));
                 } else if (type === 'DELETE') {
                     await deleteAppointment(appointment, nodeConnection);
+                    await new Promise(r => setTimeout(r, 2000));
                 }
             } catch (err) {
                 console.log('Perform transaction: ', err);
