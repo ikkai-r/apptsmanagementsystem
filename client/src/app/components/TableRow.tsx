@@ -175,6 +175,13 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
                             </select>
                         </div>
                         <div className="col-span-6">
+                            <label htmlFor="type" className="block mb-2 text-sm font-medium text-gray-900">Type</label>
+                            <select id="type" name="type" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" onChange={(e) => setRegionName(e.target.value)}  required>
+                              <option value="Consultation" selected={apptType === 'Consultation'}>Consultation</option>
+                              <option value="Inpatient" selected={apptType === 'Inpatient'}>Inpatient</option>
+                            </select>
+                        </div>
+                        <div className="col-span-6">
                             <label htmlFor="pxid" className="block mb-2 text-sm font-medium text-gray-900">Patient ID</label>
                             <input type="text" name="pxid" id="pxid" className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" value={pxID} onChange={(e) => setPxid(e.target.value)} required  />
                         </div>
@@ -232,13 +239,7 @@ export default function TableRow({ apptid, pxid, clinicid, regionname, timequeue
                                 onChange={handleDateChange}
                                 />
                         </div>
-                        <div className="col-span-6">
-                            <label htmlFor="type" className="block mb-2 text-sm font-medium text-gray-900">Type</label>
-                            <select id="type" name="type" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" onChange={(e) => setRegionName(e.target.value)}  required>
-                              <option value="Consultation" selected={apptType === 'Consultation'}>Consultation</option>
-                              <option value="Inpatient" selected={apptType === 'Inpatient'}>Inpatient</option>
-                            </select>
-                        </div>
+                       
                     </div>
                 </div>
                 <div className='w-full flex gap-5 p-6'>
