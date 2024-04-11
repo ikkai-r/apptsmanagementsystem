@@ -80,7 +80,7 @@ const dbFuncs = {
         [appointment.apptid]
       );
 
-      console.log(rows)
+      // console.log(rows)
 
       if (rows.length > 0) {
         [result] = await node.query(
