@@ -184,11 +184,11 @@ const dbFuncs = {
     },
 
     getNodeInvolvedFromPort: async (node) => {
-      if (node == 20153) {
+      if (node.config.port == 20153) {
         return 1;
-      } else if (node == 20154) {
+      } else if (node.config.port == 20154) {
         return 2;
-      } else if (node == 20155) {
+      } else if (node.config.port == 20155) {
         return 3;
       }
     },
