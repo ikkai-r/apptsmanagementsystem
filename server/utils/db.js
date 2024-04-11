@@ -155,8 +155,9 @@ const dbFuncs = {
 
   setIsolationLevel: async (node, isolationLevel) => {
     try {
-      await node.query("SET TRANSACTION ISOLATION LEVEL" + isolationLevel);
+      await node.query('SET GLOBAL TRANSACTION ISOLATION LEVEL serializable;')
     } catch (error) {
+      console.log("nagerror")
       return error;
     }
   },

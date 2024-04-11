@@ -85,25 +85,18 @@ const fetchData = async (query) => {
 };
 
 const searchQuery = async (node, query) => {
-    const connectedNode = await connectNode(node);
-
-    if(connectNode) {
-        try {
-            const [rows] = await connectedNode.query(query);
-                if (rows.length === 0) {
-                    console.log("No records found.");
-                    return null;
-                } else {
-                    return rows[0];
-                }
-          } catch (err) {
-            console.error("Failed to query node:", err);
-          } finally {
-            connectedNode.release();
-          }
-    } else {
-        console.log("Node is down");
-    }
+    try {
+    const [rows] = await node.query(query);
+        if (rows.length === 0) {
+            console.log("No records found.");
+            return null;
+        } else {
+            return rows[0];
+        }
+    } catch (err) {
+    console.error("Failed to query node:", err);
+    } 
+    
 }
 
 app.use(express.json());
@@ -129,8 +122,7 @@ app.post("/api/submitDevOptions", async (req, res) => {
     DELETE FROM appointments WHERE apptid = 'FE4563240085ACD2BFE3B16BDCE2C181';
     SELECT * FROM appointments WHERE apptid = 'FE4563240085ACD2BFE3B16BDCE2C181';
    */
-   const nodeNum = parseInt(req.body.node);
-   const node = await connectNode(nodeNum);
+   const node = await connectNode(parseInt(req.body.node));
    
    let id; 
    
@@ -192,8 +184,10 @@ app.post("/api/submitDevOptions", async (req, res) => {
         selectQuery = `SELECT * FROM appointments WHERE apptid = '${id}';`;
      }
 
-     const data = await searchQuery(nodeNum, selectQuery);
- 
+     const data = await searchQuery(node, selectQuery);
+     
+     node.release();
+
      if (data) {
          res.send(data); 
      } else {
