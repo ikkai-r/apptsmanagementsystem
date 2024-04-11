@@ -33,7 +33,8 @@ const dbFuncs = {
       console.log('Error inserting the data: ', err)
       console.log("Rolled back the data.");
       await node.rollback(node);
-      insertLog(node, appointment, 'INSERT', getNodeInvolvedFromPort(node));
+      const nodeInvolved = await getNodeInvolvedFromPort(node);
+      insertLog(node, appointment, 'DELETE', nodeInvolved);
       await node.release();
     } 
   },
@@ -90,7 +91,8 @@ const dbFuncs = {
       console.log('Error updating the data: ', err)
       console.log("Rolled back the data.");
       await node.rollback(node);
-      insertLog(node, appointment, 'UPDATE', getNodeInvolvedFromPort(node));
+      const nodeInvolved = await getNodeInvolvedFromPort(node);
+      insertLog(node, appointment, 'DELETE', nodeInvolved);
       await node.release();
     } 
   },
@@ -121,7 +123,8 @@ const dbFuncs = {
       console.log('Error deleting the data: ', err)
       console.log("Rolled back the data.");
       await node.rollback(node);
-      insertLog(node, appointment, 'DELETE', getNodeInvolvedFromPort(node));
+      const nodeInvolved = await getNodeInvolvedFromPort(node);
+      insertLog(node, appointment, 'DELETE', nodeInvolved);
       await node.release();
 
     } 
