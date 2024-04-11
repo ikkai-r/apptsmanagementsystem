@@ -52,4 +52,4 @@ async function replicateData() {
   await replicateOtherNodes();
 }
 
-module.exports = { replicateData };
+module.exports = { replicateCentralNode, replicateOtherNodes, replicateData };
