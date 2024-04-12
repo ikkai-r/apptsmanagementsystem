@@ -9,16 +9,16 @@ jest.setTimeout(10 * SECONDS);
 
 describe("Global Recovery", () => {
     const appointment = {
-        pxid: "karera",
-        clinicid: "last",
+        pxid: "90ED6B86F6B4376D1C875EA826020495",
+        clinicid: "98C56BCE74669E2E4E7A9FC1CAA8C326",
         regionname: "National Capital Region (NCR)",
-        status: "Skip",
+        status: "Queued",
         timequeued: "08/18/2018 08:11 AM",
         queuedate: "08/18/2018 08:11 AM",
         starttime: "",
         endtime: "",
         type: "Consultation",
-        apptid: "test",
+        apptid: "FFEDFBBFD6D0A5740E91C868BA57C573",
       };
 
     it("The central node is unavailable during the execution of a transaction and then eventually comes back online", async () => {
@@ -27,8 +27,8 @@ describe("Global Recovery", () => {
 
         const statement = await searchAppointment(appointment, node2);
         //if current data item looks the same as the one to be updated, make the soon to be data item different
-        if (statement.clinicid === "last") {
-            appointment.clinicid = "makeitbig";
+        if (statement.clinicid === "98C56BCE74669E2E4E7A9FC1CAA8C326") {
+            appointment.clinicid = "NEW";
         }
 
         const [t1] = await Promise.all([
@@ -46,8 +46,8 @@ describe("Global Recovery", () => {
      
         const statement = await searchAppointment(appointment, node1);
         // if current data item looks the same as the one to be updated, make the soon to be data item different
-        if (statement.clinicid === "last") {
-            appointment.clinicid = "makeitbig";
+        if (statement.clinicid === "98C56BCE74669E2E4E7A9FC1CAA8C326") {
+            appointment.clinicid = "NEW";
         }
 
         const [t1] = await Promise.all([
