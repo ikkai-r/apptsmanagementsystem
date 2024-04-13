@@ -1,3 +1,4 @@
+
 const { performTransactionTest } = require("../utils/transactions.js");
 const { searchAppointment } = require("../utils/db.js");
 const { connectNode } = require("../utils/nodes.js");
@@ -7,28 +8,28 @@ jest.setTimeout(10 * SECONDS);
 
 describe("Concurrency", () => {
   const appointment = {
-    pxid: "karera",
-    clinicid: "salamin",
+    pxid: "90ED6B86F6B4376D1C875EA826020495",
+    clinicid: "98C56BCE74669E2E4E7A9FC1CAA8C326",
     regionname: "National Capital Region (NCR)",
-    status: "Skip",
+    status: "Queued",
     timequeued: "08/18/2018 08:11 AM",
     queuedate: "08/18/2018 08:11 AM",
     starttime: "",
     endtime: "",
     type: "Consultation",
-    apptid: "test",
+    apptid: "FFEDFBBFD6D0A5740E91C868BA57C573",
   };
   const appointment2 = {
-    pxid: "buhay ay di karera",
-    clinicid: "salamin",
+    pxid: "NEW90ED6B86F6B4376D1C875EA826020495",
+    clinicid: "98C56BCE74669E2E4E7A9FC1CAA8C326",
     regionname: "National Capital Region (NCR)",
-    status: "Skip",
+    status: "Queued",
     timequeued: "08/18/2018 08:11 AM",
     queuedate: "08/18/2018 08:11 AM",
     starttime: "",
     endtime: "",
     type: "Consultation",
-    apptid: "test",
+    apptid: "FFEDFBBFD6D0A5740E91C868BA57C573",
   };
 
   it("Concurrent transactions in two or more nodes are reading the same data item.", async () => {
@@ -51,8 +52,8 @@ describe("Concurrency", () => {
 
     const before = await searchAppointment(appointment, node2);
     //if current data item looks the same as the one to be updated, make the soon to be data item different
-    if (before.clinicid === "salamin") {
-      appointment.clinicid = "sa dingding nasaan na ang pagibig";
+    if (before.clinicid === "98C56BCE74669E2E4E7A9FC1CAA8C326") {
+      appointment.clinicid = "NEWCLINIC98C56BCE74669E2E4E7A9FC1CAA8C326";
     }
 
     const [transactionResult, after] = await Promise.all([
@@ -75,7 +76,8 @@ describe("Concurrency", () => {
       ),
     ]);
 
-    expect(t1.pxid).toBe("buhay ay di karera");
-    expect(t2.pxid).toBe("buhay ay di karera");
+    expect(t1.pxid).toBe("NEW90ED6B86F6B4376D1C875EA826020495");
+    expect(t2.pxid).toBe("NEW90ED6B86F6B4376D1C875EA826020495");
   });
 });
+
