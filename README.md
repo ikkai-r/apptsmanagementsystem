@@ -1,6 +1,93 @@
-## Dev options example input
+# Appointment Management System
 
-UPDATE appointments SET pxid = 'FDD72B97684AAD92A95C07AD54A1CE16', clinicid = '7522A10DDF6916ABCCF0163B58CA0543', regionname = 'National Capital Region (NCR)', status = 'Skip', type = 'Consulation', WHERE apptid = 'F8EC68CF724828DD7EA19649C051D36A'; <br />
-SELECT * FROM appointments WHERE apptid = 'FF5C3F9D7118C9365D8B527F4E394D3D'; <br />
-DELETE FROM appointments WHERE apptid = 'FE4563240085ACD2BFE3B16BDCE2C181';
- 
+A full-stack appointment management system designed with **high availability, fault tolerance, and data reliability** in mind. The system includes ETL pipelines, node tolerance mechanisms, and data replication to ensure resilience under failure scenarios.
+
+Built and tested as a systems-focused project combining modern web technologies with distributed system concepts.
+
+---
+
+## 🚀 Features
+
+* **Appointment Scheduling & Management**
+
+  * Create, update, and view appointments
+  * Persistent storage with SQL-backed data models
+
+* **High Availability & Fault Tolerance**
+
+  * Node tolerance to handle partial system failures
+  * Data replication to prevent single points of failure
+  * Designed to continue operating during node outages
+
+* **ETL Pipelines**
+
+  * Extract, transform, and load appointment data
+  * Supports downstream analytics and reporting
+
+* **Data Analytics & Visualization**
+
+  * Structured data exported for visualization
+  * Tableau used for reporting and insights
+
+* **Test Coverage**
+
+  * Unit and integration testing with Jest
+  * Focus on system reliability and correctness
+
+---
+
+## 🧱 Tech Stack
+
+**Frontend**
+
+* React
+* Next.js
+* TypeScript
+
+**Backend**
+
+* Node.js
+* TypeScript
+* RESTful APIs
+
+**Database & Data**
+
+* SQL
+* JSON
+* Data replication mechanisms
+* ETL workflows
+
+**Testing & Analytics**
+
+* Jest
+* Tableau
+
+**Platform**
+
+* Linux
+
+---
+
+## ⚙️ Setup & Installation
+
+### Prerequisites
+
+* Node.js (v18+ recommended)
+* SQL database (local or containerized)
+* Linux environment (preferred)
+
+### Installation
+
+```bash
+git clone https://github.com/ikkai-r/apptsmanagementsystem.git
+cd apptsmanagementsystem
+npm install
+```
+
+### Run the application
+
+```bash
+npm run dev
+```
+
+---
